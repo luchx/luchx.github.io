@@ -4,16 +4,16 @@
 
 # Site
 title: Echi的个人随笔
-subtitle:
-description:
-keywords:
+subtitle: 
+description: 北京致远慧图前端开发工程师，擅长vue.js、typescript、node.js等技能
+keywords: Echi,前端开发,个人博客,HTML,CSS,JavaScript,typescript
 author: Echi
-language:
+language: zh-CN
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://github.com/Echi1993/Echi1993.github.io.git
+url: http://yoursite.com
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -35,11 +35,11 @@ titlecase: false # Transform title into titlecase
 external_link: true # Open external links in new tab
 filename_case: 0
 render_drafts: false
-post_asset_folder: false
+post_asset_folder: true
 relative_link: false
 future: true
 highlight:
-  enable: false
+  enable: true
   line_number: false
   auto_detect: false
   tab_replace:
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: hexo-theme-varaint
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html

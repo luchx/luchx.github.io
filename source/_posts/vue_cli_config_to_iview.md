@@ -1,5 +1,8 @@
 ---
 title: Vue-cli 3.0 配置iview
+date: 2019-04-18 23:02:18
+categories: vue iview
+tags: [vue, iview] 
 ---
 
 ###  (一) iview 配置自定义主题

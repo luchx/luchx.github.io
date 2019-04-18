@@ -1,5 +1,8 @@
 ---
 title: 一道前端面试题引发的思考
+date: 2019-04-18 23:02:18
+categories: interview
+tags: [vue, interview] 
 ---
 
 > 最近在看前端面试题的过程中,发现在`stackoverflow`上有这么一道题,题目大概是这样的:

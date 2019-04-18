@@ -1,5 +1,10 @@
 ---
 title: 封装axios请求并对提交参数进行校验
+date: 2019-04-18 23:02:18
+categories: vue axios
+type: "axios"
+tags: [vue,axios] 
+top: true
 ---
 
 > 本文同步更新于我的github[点击前往](https://github.com/Echi1993/requestValidator)。主要讲解如何拦截axios请求,并对请求参数进行校验,防止提交非法值。当然,你也可以直接用于表单参数校验,使用的校验工具是`async-validator`[查看详情](https://github.com/yiminghe/async-validator);之前曾用它封装过Vue的form表单组件,这个找个时间再出个教程,教你如何封装属于自己的Vue组件。
