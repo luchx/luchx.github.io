@@ -1,7 +1,7 @@
 ---
 title: Vue-cli 3.0基础项目工程模板
 date: 2019-04-18 23:02:18
-categories: vue template
+categories: 个人随笔
 tags: [vue, template] 
 ---
 

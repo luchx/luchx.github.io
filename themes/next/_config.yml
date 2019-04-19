@@ -93,9 +93,9 @@ footer:
 # Valid values of language: deed.zh, deed.fr, deed.de, etc.
 creative_commons:
   license: by-nc-sa
-  sidebar: false
+  sidebar: true
   post: true
-  language:
+  language: deed.zh
 
 # `Follow me on GitHub` banner in the top-right corner.
 github_banner:
@@ -199,8 +199,8 @@ site_state: true
 social:
   GitHub: https://github.com/Echi1993 || github
   E-Mail: mailto:duanwuhen@outlook.com || envelope
-  #Weibo: https://weibo.com/yourname || weibo
-  #Google: https://plus.google.com/yourname || google
+  掘金: https://juejin.im/user/585e36d561ff4b0058144d99 || heart
+  简书: https://www.jianshu.com/u/d7b266f4dad2 || heart
   #Twitter: https://twitter.com/yourname || twitter
   #FB Page: https://www.facebook.com/yourname || facebook
   #VK Group: https://vk.com/yourname || vk
@@ -727,7 +727,7 @@ likely:
 needmoreshare2:
   enable: true
   postbottom:
-    enable: true
+    enable: false
     options:
       iconStyle: default
       boxForm: horizontal

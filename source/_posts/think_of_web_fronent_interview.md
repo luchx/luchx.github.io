@@ -1,7 +1,7 @@
 ---
 title: 一道前端面试题引发的思考
 date: 2019-04-18 23:02:18
-categories: interview
+categories: 思考
 tags: [vue, interview] 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: 封装axios请求并对提交参数进行校验
 date: 2019-04-18 23:02:18
-categories: vue axios
+categories: 插件封装
 type: "axios"
 tags: [vue,axios] 
 top: true
