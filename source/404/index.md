@@ -8,7 +8,7 @@ permalink: /404
 <html>
     <head>
          <meta charset="UTF-8" />
-         <title>404</title>                                                                                                                                        
+         <title>404</title>              
     </head>
     <body>
          <script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" homePageName="返回首页" homePageUrl="https://echi1993.github.io"></script>
