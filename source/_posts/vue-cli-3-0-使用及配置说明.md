@@ -343,6 +343,37 @@ module.exports = {
     <img src="http://localhost:4000/2019/04/21/%E5%85%B3%E4%BA%8Evue-cli-3%E9%85%8D%E7%BD%AE%E6%89%93%E5%8C%85%E4%BC%98%E5%8C%96%E8%A6%81%E7%82%B9/unoptimize.png" width="100%" alt="预览图" />
 </div>
 
+从图中我们可以看出首次加载的资源非常多，有217个请求，为什么会这样呢？
+
+查看[官方文档](https://cli.vuejs.org/zh/guide/html-and-static-assets.html#插值)，可以得知： 
+```
+<link rel="preload"> 是一种 resource hint，用来指定页面加载后很快会被用到的资源，所以在页面加载的过程中，我们希望在浏览器开始主体渲染之前尽早 preload。
+
+默认情况下，一个 Vue CLI 应用会为所有初始化渲染需要的文件自动生成 preload 提示。
+
+这些提示会被 @vue/preload-webpack-plugin 注入，并且可以通过 chainWebpack 的 config.plugin('preload') 进行修改和删除。
+```
+
+```
+<link rel="prefetch"> 是一种 resource hint，用来告诉浏览器在页面加载完成后，利用空闲时间提前获取用户未来可能会访问的内容。
+
+默认情况下，一个 Vue CLI 应用会为所有作为 async chunk 生成的 JavaScript 文件 (通过动态 import() 按需 code splitting 的产物) 自动生成 prefetch 提示。
+
+这些提示会被 @vue/preload-webpack-plugin 注入，并且可以通过 chainWebpack 的 config.plugin('prefetch') 进行修改和删除。
+```
+
+所以修改`vue.config.js`文件
+```js
+// vue.config.js
+module.exports = {
+  chainWebpack: config => {
+    // 移除 prefetch 插件
+    config.plugins.delete('preload');
+    config.plugins.delete('prefetch');
+  }
+}
+```
+
 
 ### （八）总结
 vue-cli3在项目配置上精简了很多，而且它也提供了很多配置选项，满足定制化需要。各种配置也特别贴心，可以按照自己项目的需要进行自定义修改，大大减少了提升了开发的工作效率。
