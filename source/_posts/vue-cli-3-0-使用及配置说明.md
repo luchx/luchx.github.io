@@ -8,7 +8,7 @@ tags: [vue, vue-cli@3.0, 教程]
 > 使用vue-cli3已经有相当一段时间了，一直没怎么去注意其中的配置，所以趁着这段时间总结下应用过程中的一些经验，本文是从安装到开发使用的一个过程讲解，也可以说是新手向的文章，文字有点多，请耐心观看。
 
 ### （一）安装：
-1、下载安装node: 登陆node官网 https://nodejs.org/en/download/ 并选择自己合适的node版本；
+1、下载安装node: 登陆[node官网](https://nodejs.org/en/download/) 并选择自己合适的node版本进行安装；
 
 2、安装vue-cli脚手架工具
 ```bash
@@ -93,7 +93,7 @@ yarn serve
 ### （三）目录结构
 
 <div align="center">
-    <img src="assets.png" width="100%" alt="预览图" />
+    <img src="https://user-gold-cdn.xitu.io/2019/5/8/16a932222c8aa72d?w=318&h=853&f=png&s=26835" alt="预览图" />
 </div>
 
 ### （四）环境变量配置
@@ -336,11 +336,11 @@ module.exports = {
 </html>
 ```
 
-### Preload and Prefetch
+### （七）关于打包后请求数的优化点Preload and Prefetch
 首先我们看一张图
 
 <div align="center">
-    <img src="http://localhost:4000/2019/04/21/%E5%85%B3%E4%BA%8Evue-cli-3%E9%85%8D%E7%BD%AE%E6%89%93%E5%8C%85%E4%BC%98%E5%8C%96%E8%A6%81%E7%82%B9/unoptimize.png" width="100%" alt="预览图" />
+    <img src="https://user-gold-cdn.xitu.io/2019/5/8/16a9323696acad14?w=1271&h=765&f=png&s=49982" alt="预览图" />
 </div>
 
 从图中我们可以看出首次加载的资源非常多，有217个请求，为什么会这样呢？
