@@ -12,6 +12,8 @@
 
 ## 其他博文
 
+* [vue-cli@3.0 使用及配置说明](https://echi1993.github.io/2019/05/07/vue-cli-3-0-%E4%BD%BF%E7%94%A8%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/)
+
 * [封装axios请求并对提交参数进行校验](https://echi1993.github.io/2019/04/18/%E5%B0%81%E8%A3%85axios%E8%AF%B7%E6%B1%82%E5%B9%B6%E5%AF%B9%E6%8F%90%E4%BA%A4%E5%8F%82%E6%95%B0%E8%BF%9B%E8%A1%8C%E6%A0%A1%E9%AA%8C/)
 
 * [关于vue-cli 3配置打包优化要点](https://echi1993.github.io/2019/04/21/%E5%85%B3%E4%BA%8Evue-cli-3%E9%85%8D%E7%BD%AE%E6%89%93%E5%8C%85%E4%BC%98%E5%8C%96%E8%A6%81%E7%82%B9/)

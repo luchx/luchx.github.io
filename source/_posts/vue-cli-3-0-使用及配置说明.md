@@ -106,7 +106,7 @@ yarn serve
 .env.[mode].local   # 只在指定的模式中被载入，但会被 git 忽略
 ```
 
-1. 新建环境变量 .env.development.text 用于测试环境
+1. 新建环境变量 .env.development.test 用于测试环境
 并添加如下代码
 ```
 NODE_ENV='development'
@@ -121,6 +121,33 @@ console.log(process.env.VUE_APP_URL)
 2. 修改 `package.json`,并在`scripts`里面添加如下代码
 ```js
 "serve:test": "vue-cli-service serve --mode development.test",
+```
+
+3. 如果项目中有使用到公共环境变量，为了避免在每个.env文件中配置，我们也可以在`vue.config.js`里面进行配置
+
+在设置之前我们先来看下2.0时代的环境变量配置，之前在 prod.env.js 中我们会如下配置：
+```js
+'use strict'
+module.exports = {
+    NODE_ENV: '"production"'
+}
+```
+
+显然这样的配置我们目前不能修改，因为目前的配置文件只有`vue.config.js`，所以我们添加如下代码，进行公共环境变量的设置。
+
+```js
+// vue.config.js
+module.exports = {
+    chainWebpack: config => {
+        // 添加环境变量 
+        config.plugin("define")
+            .tap(args => {
+                args[0]["process.env"].VUE_APP_ENVBANE = JSON.stringify("环境变量值")
+                return args;
+            });
+    },
+}
+
 ```
 
 ### （五）添加配置文件 vue.config.js
