@@ -180,3 +180,10 @@ module.exports = function resolveClientEnv (options, raw) {
 }
 ```
 
+### 总结
+
+1. `.env` 和 `.env.local` 定义的环境变量会被全局引用，并会与其它环境变量合并
+2. 声明环境变量必须以 `VUE_APP_` 开头，不然会被过滤掉
+3. 除了 `VUE_APP_*` 变量之外，在你的应用代码中始终可用的还有两个特殊的变量：`NODE_ENV` 和 `BASE_URL`
+
+最后，谢谢大家的观看，欢迎大家交流分享自己的开发心得~
