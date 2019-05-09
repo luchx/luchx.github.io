@@ -187,4 +187,7 @@ module.exports = function resolveClientEnv (options, raw) {
 2. 声明环境变量必须以 `VUE_APP_` 开头，不然会被过滤掉
 3. 除了 `VUE_APP_*` 变量之外，在你的应用代码中始终可用的还有两个特殊的变量：`NODE_ENV` 和 `BASE_URL`
 
-最后，谢谢大家的观看，欢迎大家交流分享自己的开发心得~
+最后，谢谢大家的观看，如果想观看我的更多文章，请[点击前往](https://github.com/Echi1993/Echi1993.github.io)。
+如果对您有帮助,请为我点个小星星。
+
+也欢迎大家交流分享自己的开发心得~
