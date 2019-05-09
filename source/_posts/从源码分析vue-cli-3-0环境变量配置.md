@@ -165,6 +165,7 @@ module.exports = function resolveClientEnv (options, raw) {
       env[key] = process.env[key]
     }
   })
+  // 需要注意的是 `baseUrl` 从 `Vue CLI 3.3` 起已弃用，请使用 `publicPath` 。以下源码涉及此改动
   env.BASE_URL = options.publicPath
 
   if (raw) {
