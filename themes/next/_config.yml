@@ -100,7 +100,7 @@ creative_commons:
 # `Follow me on GitHub` banner in the top-right corner.
 github_banner:
   enable: true
-  permalink: https://github.com/Echi1993
+  permalink: https://github.com/luchx
   title: Follow me on GitHub
 
 
@@ -197,7 +197,7 @@ site_state: true
 # Value before `||` delimeter is the target permalink.
 # Value after `||` delimeter is the name of FontAwesome icon. If icon (with or without delimeter) is not specified, globe icon will be loaded.
 social:
-  GitHub: https://github.com/Echi1993 || github
+  GitHub: https://github.com/luchx || github
   E-Mail: mailto:duanwuhen@outlook.com || envelope
   掘金: https://juejin.im/user/585e36d561ff4b0058144d99 || heart
   简书: https://www.jianshu.com/u/d7b266f4dad2 || heart
@@ -672,11 +672,11 @@ gitment:
 # Demo: https://gitalk.github.io
 gitalk:
   enable: true
-  github_id: Echi1993  # Github repo owner
-  repo: echi1993.github.io  # Repository name to store issues
+  github_id: luchx  # Github repo owner
+  repo: luchx.github.io  # Repository name to store issues
   client_id: 426de6632ba1b87cc175  # Github Application Client ID
   client_secret: 244f111a4a817bf400c8998c67796cf0d4f0097b # Github Application Client Secret
-  admin_user: Echi1993  # GitHub repo owner and collaborators, only these guys can initialize github issues
+  admin_user: luchx  # GitHub repo owner and collaborators, only these guys can initialize github issues
   distraction_free_mode: true # Facebook-like distraction free mode
   # Gitalk's display language depends on user's browser or system environment
   # If you want everyone visiting your site to see a uniform language, you can set a force language value

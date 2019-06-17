@@ -7,7 +7,7 @@ tags: [vue,axios, 插件]
 top: true
 ---
 
-> 本文同步更新于我的github[点击前往](https://github.com/Echi1993/requestValidator)。主要讲解如何拦截axios请求,并对请求参数进行校验,防止提交非法值。当然,你也可以直接用于表单参数校验,使用的校验工具是`async-validator`[查看详情](https://github.com/yiminghe/async-validator);之前曾用它封装过Vue的form表单组件,这个找个时间再出个教程,教你如何封装属于自己的Vue组件。
+> 本文同步更新于我的github[点击前往](https://github.com/luchx/requestValidator)。主要讲解如何拦截axios请求,并对请求参数进行校验,防止提交非法值。当然,你也可以直接用于表单参数校验,使用的校验工具是`async-validator`[查看详情](https://github.com/yiminghe/async-validator);之前曾用它封装过Vue的form表单组件,这个找个时间再出个教程,教你如何封装属于自己的Vue组件。
 
 由于本人一直在用Typescript作开发,所以提交的文件后缀名是.ts结尾的。你也可以自行修改后缀名,并将里面的类型声明去除即可;
 

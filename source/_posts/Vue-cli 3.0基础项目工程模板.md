@@ -82,7 +82,7 @@ src：项目源码。开发的时候代码写在这里。
 
 ### 使用命令行
 ```bash
-$ git clone git@github.com:Echi1993/vue-cli3-template.git
+$ git clone git@github.com:luchx/vue-cli3-template.git
 $ cd vue-cli3-template
 $ npm install
 $ npm run serve         # 访问 http://localhost:8080
@@ -95,4 +95,4 @@ $ npm run test:unit     # Run your unit tests
 
 现代浏览器及 IE11。
 
-> 有兴趣的可以[查看我的github](https://github.com/Echi1993/vue-cli3-template)
+> 有兴趣的可以[查看我的github](https://github.com/luchx/vue-cli3-template)

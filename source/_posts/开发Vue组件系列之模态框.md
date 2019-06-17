@@ -486,4 +486,4 @@ npm install lcxModal -S
 </script>
 ```
 
-> 感谢那您的观看,以上就是我为大家带来的模态框组件,本文同步更新于我的github[点击前往](https://github.com/Echi1993/echi-modal)。如果对您有帮助,请为我点个小星星
+> 感谢那您的观看,以上就是我为大家带来的模态框组件,本文同步更新于我的github[点击前往](https://github.com/luchx/echi-modal)。如果对您有帮助,请为我点个小星星

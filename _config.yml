@@ -13,7 +13,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://echi1993.github.io
+url: http://luchx.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -93,5 +93,5 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: https://github.com/Echi1993/Echi1993.github.io.git
+  repository: https://github.com/luchx/luchx.github.io.git
   branch: master
