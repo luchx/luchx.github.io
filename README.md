@@ -26,4 +26,4 @@
 
 ## 交流
 
-![image](https://github.com/luchx/ECHI_BLOG/blob/master/images/qrcode.jpg?raw=true)
+![image](https://github.com/luchx/ECHI_BLOG/blob/master/images/echi_qrcode.jpg?raw=true)
