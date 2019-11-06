@@ -30,8 +30,6 @@
 
 * [我的掘金](https://juejin.im/user/585e36d561ff4b0058144d99/posts)
 
-<br/>
-
-## 前端杂论
+* 微信公众号：前端杂论
 
 ![image](https://github.com/luchx/ECHI_BLOG/blob/master/images/echi_qrcode.jpg?raw=true)
