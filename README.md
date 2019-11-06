@@ -23,3 +23,7 @@
 ## 其他链接
 
 * [我的掘金](https://juejin.im/user/585e36d561ff4b0058144d99/posts)
+
+## 交流
+
+![image](https://github.com/luchx/ECHI_BLOG/blob/master/images/qrcode.jpg?raw=true)
