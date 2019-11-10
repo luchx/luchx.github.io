@@ -24,6 +24,8 @@
 
 * [写一个自用的前端脚手架](https://github.com/luchx/ECHI_BLOG/issues/9)
 
+* [写一个带期限的本地存储 hook](https://github.com/luchx/ECHI_BLOG/issues/10)
+
 <br/>
 
 ## 其他链接
