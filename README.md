@@ -26,6 +26,8 @@
 
 * [写一个带期限的本地存储 hook](https://github.com/luchx/ECHI_BLOG/issues/10)
 
+* [聊一聊 TypeScript 的装饰器](https://github.com/luchx/ECHI_BLOG/issues/11)
+
 <br/>
 
 ## 其他链接
