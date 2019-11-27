@@ -6,9 +6,11 @@
 
 ## 2019
 
+* [写一个监听键盘输入的 Hook](https://github.com/luchx/ECHI_BLOG/issues/12)
+
 * [聊一聊 TypeScript 的装饰器](https://github.com/luchx/ECHI_BLOG/issues/11)
 
-* [写一个带期限的本地存储 hook](https://github.com/luchx/ECHI_BLOG/issues/10)
+* [写一个带期限的本地存储 Hook](https://github.com/luchx/ECHI_BLOG/issues/10)
 
 * [写一个自用的前端脚手架](https://github.com/luchx/ECHI_BLOG/issues/9)
 
