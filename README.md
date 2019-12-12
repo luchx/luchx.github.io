@@ -6,6 +6,8 @@
 
 ## 2019
 
+* [使用 GG-Editor 开发脑图应用](https://github.com/luchx/ECHI_BLOG/issues/13)
+
 * [写一个监听键盘输入的 Hook](https://github.com/luchx/ECHI_BLOG/issues/12)
 
 * [聊一聊 TypeScript 的装饰器](https://github.com/luchx/ECHI_BLOG/issues/11)
