@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>vue-cli@3.0 使用及配置说明 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592295776915">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+使用 vue-cli3 已经有相当一段时间了，一直没怎么去注意其中的配置，所以趁着这段时间总结下应用过程中的一些经验，本文是从安装到开发使用的一个过程讲解，也可以说是新手向的文章，文字有点多，请耐心观看。
+
+（一）安装
+1、下载安装 no..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592295776915" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">vue-cli@3.0 使用及配置说明</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <blockquote>
+<p>使用 vue-cli3 已经有相当一段时间了，一直没怎么去注意其中的配置，所以趁着这段时间总结下应用过程中的一些经验，本文是从安装到开发使用的一个过程讲解，也可以说是新手向的文章，文字有点多，请耐心观看。</p>
+</blockquote>
+<h3 id="一安装">（一）安装</h3>
+<p>1、下载安装 node: 登陆 <a href="https://nodejs.org/en/download/">node 官网</a> 并选择自己合适的 node 版本进行安装；</p>
+<p>2、安装 vue-cli 脚手架工具</p>
+<pre><code class="language-bash">npm install -g @vue/cli
+# OR
+# 推荐使用
+npm install -g yarn # 如果已有安装，此步骤不需要
+yarn global add @vue/cli
+</code></pre>
+<h3 id="二创建一个项目">（二）创建一个项目：</h3>
+<pre><code class="language-bash">vue create my-project
+# OR
+vue ui
+</code></pre>
+<ul>
+<li>选择合适的配置</li>
+</ul>
+<pre><code class="language-bash"># 版本信息
+Vue CLI v3.7.0
+? Please pick a preset:
+# 基础配置
+  vue-cli3-demo (vue-router, vuex, sass, babel, typescript, unit-mocha)
+  default (babel, eslint)
+# 自定义配置，这里我们选择自定义选项，点击回车
+&gt; Manually select features
+</code></pre>
+<ul>
+<li>选择需要的插件及编译工具</li>
+</ul>
+<pre><code class="language-bash">? Check the features needed for your project:
+# 代码转换，可以让你更好的书写前沿技术
+ (*) Babel
+# JavaScript 的一个超集，好东西用起来
+ (*) TypeScript
+# PWA支持,不要求使用可以不选
+ ( ) Progressive Web App (PWA) Support
+ (*) Router
+ (*) Vuex
+# css预编译器
+ (*) CSS Pre-processors
+# 代码格式化
+ (*) Linter / Formatter
+# 书写单元测试用的，不要求使用可以不选
+&gt;(*) Unit Testing
+ ( ) E2E Testing
+</code></pre>
+<ul>
+<li>接下来的配置选项</li>
+</ul>
+<pre><code class="language-bash"># 是否使用class风格进行组件开发
+? Use class-style component syntax? Yes
+# 使用 babel 对 TypeScript 代码进行编译转换
+? Use Babel alongside TypeScript for auto-detected polyfills? Yes
+
+? Use history mode for router? (Requires proper server setup for index fallback in production) Yes
+# 选择css预编译，这里我们选择Sass/SCSS
+? Pick a CSS pre-processor (PostCSS, Autoprefixer and CSS Modules are supported by default): Sass/SCSS (with node-sass)
+# 选择代码格式化配置
+? Pick a linter / formatter config: Standard
+# 代码检查方式
+? Pick additional lint features: (Press &lt;space&gt; to select, &lt;a&gt; to toggle all, &lt;i&gt; to invert selection)Lint on save
+# 选择单元测试工具
+? Pick a unit testing solution: Mocha
+# 是否将配置放在单独的文件中
+? Where do you prefer placing config for Babel, PostCSS, ESLint, etc.? In dedicated config files
+# 是否将此次配置保存
+? Save this as a preset for future projects? No
+</code></pre>
+<ul>
+<li>最后</li>
+</ul>
+<pre><code class="language-bash">cd my-project
+npm run install
+npm run serve
+# OR 推荐使用
+yarn install
+yarn serve
+</code></pre>
+<h3 id="三目录结构">（三）目录结构</h3>
+<figure data-type="image" tabindex="1"><img src="https://user-images.githubusercontent.com/17548394/68276885-f5689900-00a8-11ea-8d62-ff73dd304d5e.png" alt="assets" loading="lazy"></figure>
+<h3 id="四环境变量配置">（四）环境变量配置</h3>
+<p>环境变量说明</p>
+<pre><code>.env                # 在所有的环境中被载入
+.env.local          # 在所有的环境中被载入，但会被 git 忽略
+.env.[mode]         # 只在指定的模式中被载入
+.env.[mode].local   # 只在指定的模式中被载入，但会被 git 忽略
+</code></pre>
+<ol>
+<li>新建环境变量 .env.development.test 用于测试环境<br>
+并添加如下代码</li>
+</ol>
+<pre><code>NODE_ENV='development'
+VUE_APP_URL='你的测试环境域名'
+</code></pre>
+<blockquote>
+<p>只有以 VUE<em>APP</em> 开头的变量会被 webpack.DefinePlugin 静态嵌入到客户端侧的包中。你可以在应用的代码中这样访问它们：</p>
+</blockquote>
+<pre><code class="language-js">console.log(process.env.VUE_APP_URL);
+</code></pre>
+<ol start="2">
+<li>修改 <code>package.json</code>,并在<code>scripts</code>里面添加如下代码</li>
+</ol>
+<pre><code class="language-js">&quot;serve:test&quot;: &quot;vue-cli-service serve --mode development.test&quot;,
+</code></pre>
+<ol start="3">
+<li>如果项目中有使用到公共环境变量，为了避免在每个.env 文件中配置，我们也可以在<code>vue.config.js</code>里面进行配置</li>
+</ol>
+<p>在设置之前我们先来看下 2.0 时代的环境变量配置，之前在 prod.env.js 中我们会如下配置：</p>
+<pre><code class="language-js">&quot;use strict&quot;;
+module.exports = {
+  NODE_ENV: '&quot;production&quot;',
+};
+</code></pre>
+<p>显然这样的配置我们目前不能修改，因为目前的配置文件只有<code>vue.config.js</code>，所以我们添加如下代码，进行公共环境变量的设置。</p>
+<pre><code class="language-js">// vue.config.js
+module.exports = {
+  chainWebpack: (config) =&gt; {
+    // 添加环境变量
+    config.plugin(&quot;define&quot;).tap((args) =&gt; {
+      args[0][&quot;process.env&quot;].VUE_APP_ENVBANE = JSON.stringify(&quot;环境变量值&quot;);
+      return args;
+    });
+  },
+};
+</code></pre>
+<h3 id="五添加配置文件-vueconfigjs">（五）添加配置文件 vue.config.js</h3>
+<p><a href="https://cli.vuejs.org/zh/">vue.config.js</a> 是一个可选的配置文件，如果项目的 (和 package.json 同级的) 根目录中存在这个文件，那么它会被 @vue/cli-service 自动加载。你也可以使用 package.json 中的 vue 字段，但是注意这种写法需要你严格遵照 JSON 的格式来写。</p>
+<pre><code class="language-js">// vue.config.js
+module.exports = {
+  // baseUrl从 Vue CLI 3.3 起已弃用，请使用publicPath。
+  // baseUrl:'./',
+  // 配置sub-path后访问路径为https://xxx-path/sub-path/#/
+  publicPath: process.env.NODE_ENV === &quot;production&quot; ? &quot;/sub-path/&quot; : &quot;/&quot;,
+  // 输出文件路径，默认为dist
+  outputDir: &quot;dist&quot;,
+  // 放置生成的静态资源 (js、css、img、fonts) 的 (相对于 outputDir 的) 目录。
+  assetsDir: &quot;&quot;,
+  // 指定生成的 index.html 的输出路径 (相对于 outputDir)。也可以是一个绝对路径
+  indexPath: &quot;&quot;,
+  // 配置多页应用
+  pages: {
+    index: {
+      // page 的入口
+      entry: &quot;src/index/main.js&quot;,
+      // 模板来源
+      template: &quot;public/index.html&quot;,
+      // 在 dist/index.html 的输出
+      filename: &quot;index.html&quot;,
+      // 当使用 title 选项时，
+      // template 中的 title 标签需要是 &lt;title&gt;&lt;%= htmlWebpackPlugin.options.title %&gt;&lt;/title&gt;
+      title: &quot;Index Page&quot;,
+      // 在这个页面中包含的块，默认情况下会包含
+      // 提取出来的通用 chunk 和 vendor chunk。
+      chunks: [&quot;chunk-vendors&quot;, &quot;chunk-common&quot;, &quot;index&quot;],
+    },
+    // 当使用只有入口的字符串格式时，
+    // 模板会被推导为 `public/subpage.html`
+    // 并且如果找不到的话，就回退到 `public/index.html`。
+    // 输出文件名会被推导为 `subpage.html`。
+    subpage: &quot;src/subpage/main.js&quot;,
+  },
+  lintOnSave: true, // 保存时 lint 代码
+  // css相关配置
+  css: {
+    // 是否使用css分离插件 ExtractTextPlugin
+    extract: true,
+    // 开启 CSS source maps?
+    sourceMap: false,
+    // css预设器配置项
+    loaderOptions: {
+      // pass options to sass-loader
+      sass: {
+        // 自动注入全局变量样式
+        data: `
+                    @import &quot;src/你的全局scss文件路径&quot;;
+                `,
+      },
+    },
+    // 启用 CSS modules for all css / pre-processor files.
+    modules: false,
+  },
+  // 生产环境是否生成 sourceMap 文件
+  productionSourceMap: false,
+  //是否为 Babel 或 TypeScript 使用 thread-loader。该选项在系统的 CPU 有多于一个内核时自动启用，仅作用于生产构建。
+  parallel: require(&quot;os&quot;).cpus().length &gt; 1,
+  // 所有 webpack-dev-server 的选项都支持
+  devServer: {
+    port: 8080, // 配置端口
+    open: true, // 自动开启浏览器
+    compress: true, // 开启压缩
+    // 设置让浏览器 overlay 同时显示警告和错误
+    overlay: {
+      warnings: true,
+      errors: true,
+    },
+    // 设置请求代理
+    proxy: {
+      &quot;/api&quot;: {
+        target: &quot;&lt;url&gt;&quot;,
+        ws: true,
+        changeOrigin: true,
+      },
+      &quot;/foo&quot;: {
+        target: &quot;&lt;other_url&gt;&quot;,
+      },
+    },
+  },
+};
+</code></pre>
+<h3 id="六修改webpack配置信息">（六）修改<code>webpack</code>配置信息</h3>
+<p><code>vue-cli3.0</code>的版本已经将<code>webpack</code>的配置整合进<code>vue.config.js</code>里面了</p>
+<pre><code class="language-js">// 安装 babel-polyfill
+// npm install babel-polyfill 或者 yarn add babel-polyfill
+// 安装 uglifyjs-webpack-plugin
+// npm install uglifyjs-webpack-plugin -D 或者 yarn add uglifyjs-webpack-plugin -D
+
+// vue.config.js
+const UglifyJsPlugin = require(&quot;uglifyjs-webpack-plugin&quot;);
+const isProduction = process.env.NODE_ENV === &quot;production&quot;;
+
+module.exports = {
+  chainWebpack: (config) =&gt; {
+    // 引入babel-polyfill
+    config.entry(&quot;index&quot;).add(&quot;babel-polyfill&quot;).end();
+    // 添加文件路径别名
+    config.resolve.alias.set(&quot;@&quot;, resolve(&quot;src&quot;));
+    if (isProduction) {
+      // 生产环境注入cdn
+      config.plugin(&quot;html&quot;).tap((args) =&gt; {
+        args[0].cdn = cdn;
+        return args;
+      });
+    }
+  },
+  configureWebpack: (config) =&gt; {
+    if (isProduction) {
+      // 为生产环境修改配置...
+      config.plugins.push(
+        //添加代码压缩工具，及设置生产环境自动删除console
+        new UglifyJsPlugin({
+          uglifyOptions: {
+            compress: {
+              warnings: false,
+              drop_debugger: true,
+              drop_console: true,
+            },
+          },
+          sourceMap: false,
+          parallel: true,
+        })
+      );
+    } else {
+      // 为开发环境修改配置...
+    }
+  },
+};
+</code></pre>
+<ol start="3">
+<li>分离第三方插件，引入 cdn 配置</li>
+</ol>
+<p>这里介绍一个开源的 cdn 库 https://www.bootcdn.cn/</p>
+<pre><code class="language-js">// vue.config.js
+const isProduction = process.env.NODE_ENV === &quot;production&quot;;
+const cdn = {
+  css: [],
+  js: [
+    &quot;https://xxx-cdn-path/vue.runtime.min.js&quot;,
+    &quot;https://xxx-cdn-path/vue-router.min.js&quot;,
+    &quot;https://xxx-cdn-path/vuex.min.js&quot;,
+    &quot;https://xxx-cdn-path/axios.min.js&quot;,
+  ],
+};
+
+module.exports = {
+  configureWebpack: (config) =&gt; {
+    if (isProduction) {
+      // 用cdn方式引入,分离第三方插件
+      config.externals = {
+        vue: &quot;Vue&quot;,
+        vuex: &quot;Vuex&quot;,
+        &quot;vue-router&quot;: &quot;VueRouter&quot;,
+        axios: &quot;axios&quot;,
+      };
+    } else {
+      // 为开发环境修改配置...
+    }
+  },
+};
+</code></pre>
+<p>修改 html 文件</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1.0&quot; /&gt;
+    &lt;link
+      rel=&quot;icon&quot;
+      href=&quot;&lt;%= BASE_URL %&gt;static/favicon.ico&quot;
+      type=&quot;image/x-icon&quot;
+    /&gt;
+    &lt;link
+      rel=&quot;shortcut icon&quot;
+      href=&quot;&lt;%= BASE_URL %&gt;static/favicon.ico&quot;
+      type=&quot;image/x-icon&quot;
+    /&gt;
+    &lt;title&gt;my-project&lt;/title&gt;
+    &lt;!-- 使用CDN的CSS文件 --&gt;
+    &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp;
+    htmlWebpackPlugin.options.cdn.css) { %&gt;
+    &lt;link
+      href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.css[i] %&gt;&quot;
+      rel=&quot;preload&quot;
+      as=&quot;style&quot;
+    /&gt;
+    &lt;link href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.css[i] %&gt;&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;% } %&gt;
+    &lt;!-- 使用CDN的JS文件 --&gt;
+    &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp;
+    htmlWebpackPlugin.options.cdn.js) { %&gt;
+    &lt;link
+      href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.js[i] %&gt;&quot;
+      rel=&quot;preload&quot;
+      as=&quot;script&quot;
+    /&gt;
+    &lt;% } %&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;noscript&gt;
+      &lt;strong
+        &gt;We're sorry but eye-admin doesn't work properly without JavaScript
+        enabled. Please enable it to continue.&lt;/strong
+      &gt;
+    &lt;/noscript&gt;
+    &lt;div id=&quot;app&quot;&gt;&lt;/div&gt;
+    &lt;!-- built files will be auto injected --&gt;
+    &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp;
+    htmlWebpackPlugin.options.cdn.js) { %&gt;
+    &lt;script src=&quot;&lt;%= htmlWebpackPlugin.options.cdn.js[i] %&gt;&quot;&gt;&lt;/script&gt;
+    &lt;% } %&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3 id="七关于打包后请求数的优化点-preload-and-prefetch">（七）关于打包后请求数的优化点 Preload and Prefetch</h3>
+<p>首先我们看一张图</p>
+<figure data-type="image" tabindex="2"><img src="https://user-images.githubusercontent.com/17548394/68277036-45476000-00a9-11ea-9a5c-8e507827401d.png" alt="image" loading="lazy"></figure>
+<p>从图中我们可以看出首次加载的资源非常多，有 217 个请求，为什么会这样呢？</p>
+<p>查看<a href="https://cli.vuejs.org/zh/guide/html-and-static-assets.html#%E6%8F%92%E5%80%BC">官方文档</a>，可以得知：</p>
+<pre><code>&lt;link rel=&quot;preload&quot;&gt; 是一种 resource hint，用来指定页面加载后很快会被用到的资源，所以在页面加载的过程中，我们希望在浏览器开始主体渲染之前尽早 preload。
+
+默认情况下，一个 Vue CLI 应用会为所有初始化渲染需要的文件自动生成 preload 提示。
+
+这些提示会被 @vue/preload-webpack-plugin 注入，并且可以通过 chainWebpack 的 config.plugin('preload') 进行修改和删除。
+</code></pre>
+<pre><code>&lt;link rel=&quot;prefetch&quot;&gt; 是一种 resource hint，用来告诉浏览器在页面加载完成后，利用空闲时间提前获取用户未来可能会访问的内容。
+
+默认情况下，一个 Vue CLI 应用会为所有作为 async chunk 生成的 JavaScript 文件 (通过动态 import() 按需 code splitting 的产物) 自动生成 prefetch 提示。
+
+这些提示会被 @vue/preload-webpack-plugin 注入，并且可以通过 chainWebpack 的 config.plugin('prefetch') 进行修改和删除。
+</code></pre>
+<p>所以修改<code>vue.config.js</code>文件</p>
+<pre><code class="language-js">// vue.config.js
+module.exports = {
+  chainWebpack: (config) =&gt; {
+    // 移除 prefetch 插件
+    config.plugins.delete(&quot;preload&quot;);
+    config.plugins.delete(&quot;prefetch&quot;);
+  },
+};
+</code></pre>
+<h3 id="八总结">（八）总结</h3>
+<p>vue-cli3 在项目配置上精简了很多，而且它也提供了很多配置选项，满足定制化需要。各种配置也特别贴心，可以按照自己项目的需要进行自定义修改，大大减少了提升了开发的工作效率。</p>
+<p>以上就是本文的全部内容，我们已经将 vue-cli3.0 从安装到修改配置的过程讲解结束了，希望对大家的学习有所帮助</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
