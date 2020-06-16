@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>写一个自用的前端脚手架 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+在工作中我们会用到很多便捷的脚手架工具，比如Vue的vue-cli，React的create-react-app等。极大的提高了我们的工作效率，那么今天我们就来学学怎么制作一款自用的前端脚手架。
+
+核心依赖
+
+commander 命令行工..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">写一个自用的前端脚手架</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <blockquote>
+<p>在工作中我们会用到很多便捷的脚手架工具，比如Vue的vue-cli，React的create-react-app等。极大的提高了我们的工作效率，那么今天我们就来学学怎么制作一款自用的前端脚手架。</p>
+</blockquote>
+<h2 id="核心依赖">核心依赖</h2>
+<ol>
+<li>commander 命令行工具</li>
+<li>download-git-repo git仓库代码下载</li>
+<li>chalk 命令行输出样式美化</li>
+<li>Inquirer.js 命令行交互</li>
+<li>ora 命令行加载中效果</li>
+<li>didyoumean 脚本命令匹配</li>
+<li>fs-extra fs的替代品。</li>
+<li>log-symbols 日志着色</li>
+<li>semver 语义化日志控制</li>
+<li>validate-npm-package-name 校验包名</li>
+</ol>
+<h2 id="项目结构">项目结构</h2>
+<figure data-type="image" tabindex="1"><img src="https://user-images.githubusercontent.com/17548394/68277974-5d1fe380-00ab-11ea-89a2-3ee0aba82732.jpeg" alt="1" loading="lazy"></figure>
+<h2 id="项目搭建">项目搭建</h2>
+<ol>
+<li>在一个空文件下执行npm init</li>
+<li>将以上依赖全部安装，执行npm install commander ... validate-npm-package-name -S</li>
+</ol>
+<h3 id="1-初始化">1. 初始化</h3>
+<blockquote>
+<p>在根目录下新建<code>bin/luchx.js</code>文件，并添加以下代码</p>
+</blockquote>
+<pre><code class="language-js">#!/usr/bin/env node
+
+// Check node version before requiring/doing anything else
+// The user may be on a very old node version
+
+const chalk = require('chalk')
+const program = require('commander')
+
+program
+  .version(require('../package').version)
+  .usage('&lt;command&gt; [options]')
+
+program.parse(process.argv)
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp()
+}
+
+</code></pre>
+<p>首先文件第一行表示该文件运行于node环境，接着引入commander。最后的program.parse方法用于解析命令行中传入的参数。</p>
+<h3 id="2-添加第一个指令">2. 添加第一个指令</h3>
+<p>command命令有两种用法，官方示例如下：</p>
+<pre><code class="language-js">// Command implemented using action handler (description is supplied separately to `.command`)
+// Returns new command for configuring.
+program
+  .command('clone &lt;source&gt; [destination]')
+  .description('clone a repository into a newly created directory')
+  .action((source, destination) =&gt; {
+    console.log('clone command called');
+  });
+ 
+// Command implemented using separate executable file (description is second parameter to `.command`)
+// Returns top-level command for adding more commands.
+program
+  .command('start &lt;service&gt;', 'start named service')
+  .command('stop [service]', 'stop named service, or all if no name supplied');
+
+</code></pre>
+<p>其中参数对应的&lt;&gt;, [ ]分别代表必填和选填。这里我们使用第一种，添加如下代码：</p>
+<pre><code class="language-js">program
+  .command('create &lt;app-name&gt;')
+  .description('  Create a project with template already created.')
+  .action((name, cmd) =&gt; {
+    require('../lib/create')(name)
+  })
+
+</code></pre>
+<h3 id="3-添加监听-help事件">3. 添加监听--help事件</h3>
+<pre><code class="language-js">// add some useful info on help
+program.on('--help', () =&gt; {
+  console.log()
+  console.log(`  Run ${chalk.cyan('luchx &lt;command&gt; --help')} for detailed usage of given command.`)
+  console.log()
+})
+
+</code></pre>
+<p>执行结果</p>
+<figure data-type="image" tabindex="2"><img src="https://user-images.githubusercontent.com/17548394/68277998-6b6dff80-00ab-11ea-8702-5f4ee18cddc6.jpeg" alt="2" loading="lazy"></figure>
+<h2 id="交互说明">交互说明</h2>
+<h3 id="1-在根目录下创建lib文件并添加createjs文件">1. 在根目录下创建lib文件，并添加create.js文件。</h3>
+<pre><code class="language-js">module.exports = async function create (projectName) { }
+
+</code></pre>
+<h3 id="2-校验包名">2. 校验包名</h3>
+<pre><code class="language-js">const path = require('path')
+const fs = require('fs-extra')
+
+const inquirer = require('inquirer')
+const chalk = require('chalk')
+const validateProjectName = require('validate-npm-package-name')
+
+module.exports = async function create (projectName) {
+  const cwd = process.cwd()
+  const targetDir = path.resolve(cwd, projectName)
+  const name = path.relative(cwd, projectName)
+
+  const result = validateProjectName(name)
+  if (!result.validForNewPackages) {
+    console.error(chalk.red(`Invalid project name: &quot;${name}&quot;`))
+    result.errors &amp;&amp; result.errors.forEach(err =&gt; {
+      console.error(chalk.red.dim('Error: ' + err))
+    })
+    result.warnings &amp;&amp; result.warnings.forEach(warn =&gt; {
+      console.error(chalk.red.dim('Warning: ' + warn))
+    })
+    process.exit(1)
+  }
+
+  if (fs.existsSync(targetDir)) {
+    const { action } = await inquirer.prompt([
+      {
+        name: 'action',
+        type: 'list',
+        message: `Target directory ${chalk.cyan(targetDir)} already exists. Pick an action:`,
+        choices: [
+          { name: 'Overwrite', value: 'overwrite' },
+          { name: 'Cancel', value: false }
+        ]
+      }
+    ])
+    if (!action) {
+      return
+    } else if (action === 'overwrite') {
+      console.log(`\nRemoving ${chalk.cyan(targetDir)}...`)
+      await fs.remove(targetDir)
+    }
+  }
+
+  // ...
+}
+
+</code></pre>
+<h3 id="3-inquirerjs-处理命令交互">3. inquirer.js 处理命令交互</h3>
+<pre><code class="language-js">const inquirer = require('inquirer')
+
+module.exports = async function create (projectName) {
+ 	// ...
+
+  const { bolierplateType, author, description, version } = await inquirer.prompt([
+    {
+      name: 'bolierplateType',
+      type: 'list',
+      default: 'vue',
+      choices: [
+        {
+          name: 'Vue',
+          value: 'vue'
+        },
+        {
+          name: 'React',
+          value: 'react'
+        }
+      ],
+      message: 'Select the boilerplate type.'
+    }, {
+      type: 'input',
+      name: 'description',
+      message: 'Please input your project description.',
+      default: 'description',
+      validate (val) {
+        return true
+      },
+      transformer (val) {
+        return val
+      }
+    }, {
+      type: 'input',
+      name: 'author',
+      message: 'Please input your author name.',
+      default: 'author',
+      validate (val) {
+        return true
+      },
+      transformer (val) {
+        return val
+      }
+    }, {
+      type: 'input',
+      name: 'version',
+      message: 'Please input your version.',
+      default: '0.0.1',
+      validate (val) {
+        return true
+      },
+      transformer (val) {
+        return val
+      }
+    }
+  ])
+
+  // ...
+}
+
+</code></pre>
+<h3 id="4-封装下载文件libdownloadfromremotejs">4. 封装下载文件lib/downloadFromRemote.js</h3>
+<pre><code class="language-js">const download = require('download-git-repo')
+
+module.exports = function downloadFromRemote (url, name) {
+  return new Promise((resolve, reject) =&gt; {
+    download(`direct:${url}`, name, { clone: true }, function (err) {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve()
+    })
+  })
+}
+
+</code></pre>
+<h3 id="5-添加下载操作">5. 添加下载操作</h3>
+<pre><code class="language-js">const fs = require('fs-extra')
+const chalk = require('chalk')
+const logSymbols = require('log-symbols')
+const downloadFromRemote = require('../lib/downloadFromRemote')
+
+module.exports = async function create (projectName) {
+  // ...
+  
+  downloadFromRemote(remoteUrl, projectName).then(res =&gt; {
+    fs.readFile(`./${projectName}/package.json`, 'utf8', function (err, data) {
+      if (err) {
+        spinner.stop()
+        console.error(err)
+        return
+      }
+      const packageJson = JSON.parse(data)
+      packageJson.name = projectName
+      packageJson.description = description
+      packageJson.author = author
+      packageJson.version = version
+      var updatePackageJson = JSON.stringify(packageJson, null, 2)
+      fs.writeFile(`./${projectName}/package.json`, updatePackageJson, 'utf8', function (err) {
+        spinner.stop()
+        if (err) {
+          console.error(err)
+        } else {
+          console.log(logSymbols.success, chalk.green(`Successfully created project template of ${bolierplateType}\n`))
+          console.log(`${chalk.grey(`cd ${projectName}`)}\n${chalk.grey('yarn install')}\n${chalk.grey('yarn serve')}\n`)
+        }
+        process.exit()
+      })
+    })
+  }).catch((err) =&gt; {
+    console.log(logSymbols.error, err)
+    spinner.fail(chalk.red('Sorry, it must be something error,please check it out. \n'))
+    process.exit(-1)
+  })
+}
+
+</code></pre>
+<h2 id="运行">运行</h2>
+<blockquote>
+<p>本项目没有发布到npm上，仅作学习研究之用，可以自己拉取项目然后执行npm link，在本地体验。为了可以全局使用，我们需要在package.json里面设置一下，这样就可以执行luchx命令开头的指令了。</p>
+</blockquote>
+<pre><code class="language-js">&quot;bin&quot;: {
+	&quot;luchx&quot;: &quot;bin/luchx.js&quot;
+},
+
+</code></pre>
+<p>以上完整的代码可以访问<a href="https://github.com/luchx/ECHI_CLI">github查看获取</a></p>
+<h2 id="参考">参考</h2>
+<ul>
+<li>vue-cli Vue.js 开发的标准工具</li>
+<li>commander node.js 命令行接口的完整解决方案</li>
+<li>Inquirer 命令行交互工具</li>
+</ul>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/feng-zhuang-axios-qing-qiu-bing-dui-ti-jiao-can-shu-jin-xing-xiao-yan/">
+                  <h3 class="post-title">
+                    封装axios请求并对提交参数进行校验
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

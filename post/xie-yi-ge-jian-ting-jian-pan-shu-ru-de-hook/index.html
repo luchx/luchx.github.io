@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>写一个监听键盘输入的 hook | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一个优雅的管理 keyup 和 keydown 键盘事件的 Hook，支持键盘组合键，定义键盘事件的 key  和 keyCode 别名输入 。
+import { useEffect, useCallback } from 'react';..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">写一个监听键盘输入的 hook</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <p>一个优雅的管理 <code>keyup</code> 和 <code>keydown</code> 键盘事件的 Hook，支持键盘组合键，定义键盘事件的 <code>key</code>  和 <code>keyCode</code> 别名输入 。</p>
+<pre><code class="language-ts">import { useEffect, useCallback } from 'react';
+
+type KeyPredicate = (event: KeyboardEvent) =&gt; boolean;
+type keyType = KeyboardEvent['keyCode'] | KeyboardEvent['key'];
+type KeyFilter = keyType | Array&lt;keyType&gt; | ((event: KeyboardEvent) =&gt; boolean);
+type EventHandler = (event: KeyboardEvent) =&gt; void;
+type keyEvent = 'keydown' | 'keyup';
+
+// 键盘事件 keyCode 别名
+const aliasKeyCodeMap: any = {
+  esc: 27,
+  tab: 9,
+  enter: 13,
+  space: 32,
+  up: 38,
+  left: 37,
+  right: 39,
+  down: 40,
+  delete: [8, 46],
+};
+
+// 键盘事件 key 别名
+const aliasKeyMap: any = {
+  esc: 'Escape',
+  tab: 'Tab',
+  enter: 'Enter',
+  space: ' ',
+  // IE11 uses key names without `Arrow` prefix for arrow keys.
+  up: ['Up', 'ArrowUp'],
+  left: ['Left', 'ArrowLeft'],
+  right: ['Right', 'ArrowRight'],
+  down: ['Down', 'ArrowDown'],
+  delete: ['Backspace', 'Delete'],
+};
+
+// 修饰键
+const modifierKey: any = {
+  ctrl: (event: KeyboardEvent) =&gt; event.ctrlKey,
+  shift: (event: KeyboardEvent) =&gt; event.shiftKey,
+  alt: (event: KeyboardEvent) =&gt; event.altKey,
+  meta: (event: KeyboardEvent) =&gt; event.metaKey,
+};
+
+// 返回空对象
+const noop = () =&gt; {};
+
+/**
+ * 判断对象类型
+ * @param [obj: any] 参数对象
+ * @returns String
+ */
+function isType(obj: any) {
+  return Object.prototype.toString
+    .call(obj)
+    .replace(/^\[object (.+)\]$/, '$1')
+    .toLowerCase();
+}
+
+/**
+ * 判断按键是否激活
+ * @param [event: KeyboardEvent]键盘事件
+ * @param [keyFilter: any] 当前键
+ * @returns Boolean
+ */
+function genFilterKey(event: any, keyFilter: any) {
+  const type = isType(keyFilter);
+  // 数字类型直接匹配事件的 keyCode
+  if (type === 'number') {
+    return event.keyCode === keyFilter;
+  }
+  // 字符串依次判断是否有组合键
+  const genArr = keyFilter.split('.');
+  let genLen = 0;
+  for (const key of genArr) {
+    // 组合键
+    const genModifier = modifierKey[key];
+    // key 别名
+    const aliasKey = aliasKeyMap[key];
+    // keyCode 别名
+    const aliasKeyCode = aliasKeyCodeMap[key];
+    /**
+     * 满足以上规则
+     * 1. 自定义组合键别名
+     * 2. 自定义 key 别名
+     * 3. 自定义 keyCode 别名
+     * 4. 匹配 key 或 keyCode
+     */
+    if (
+      (genModifier &amp;&amp; genModifier(event)) ||
+      (aliasKey &amp;&amp; isType(aliasKey) === 'array'
+        ? aliasKey.includes(event.key)
+        : aliasKey === event.key) ||
+      (aliasKeyCode &amp;&amp; isType(aliasKeyCode) === 'array'
+        ? aliasKeyCode.includes(event.keyCode)
+        : aliasKeyCode === event.keyCode) ||
+      event.key.toUpperCase() === key.toUpperCase()
+    ) {
+      genLen++;
+    }
+  }
+  return genLen === genArr.length;
+}
+
+/**
+ * 键盘输入预处理方法
+ * @param [keyFilter: any] 当前键
+ * @returns () =&gt; Boolean
+ */
+function genKeyFormater(keyFilter: any): KeyPredicate {
+  const type = isType(keyFilter);
+  if (type === 'function') {
+    return keyFilter;
+  }
+  if (type === 'string' || type === 'number') {
+    return (event: KeyboardEvent) =&gt; genFilterKey(event, keyFilter);
+  }
+  if (type === 'array') {
+    return (event: KeyboardEvent) =&gt; keyFilter.some((item: any) =&gt; genFilterKey(event, item));
+  }
+  return keyFilter ? () =&gt; true : () =&gt; false;
+}
+
+const defaultEvents: Array&lt;keyEvent&gt; = ['keydown'];
+
+function useKeyPress(
+  keyFilter: KeyFilter,
+  eventHandler: EventHandler = noop,
+  events: Array&lt;keyEvent&gt; = defaultEvents,
+) {
+  const callbackHandler: EventHandler = useCallback(
+    (event: KeyboardEvent) =&gt; {
+      const genGuard: KeyPredicate = genKeyFormater(keyFilter);
+      if (genGuard(event)) {
+        return eventHandler(event);
+      }
+    },
+    [eventHandler],
+  );
+
+  useEffect(() =&gt; {
+    for (const eventName of events) {
+      window.addEventListener(eventName, callbackHandler);
+    }
+    return () =&gt; {
+      for (const eventName of events) {
+        window.removeEventListener(eventName, callbackHandler);
+      }
+    };
+  }, [events, callbackHandler]);
+}
+
+export default useKeyPress;
+
+</code></pre>
+<h2 id="reference">reference</h2>
+<blockquote>
+<p>支持多种输入方式</p>
+</blockquote>
+<pre><code>useKeyPress(['tab', 'left', 'delete', '1',  65, 27, 'ctrl.alt.s'], (event) =&gt; {
+    console.log(event)
+});
+
+useKeyPress('ctrl.alt.4', (event) =&gt; {
+    console.log(event)
+}, ['keyup']);
+
+useKeyPress((event) =&gt; {
+    // 预处理方法，可以在这里进行计算后返回 boolean
+    if (event.type === 'keydown') {
+          event.preventDefault()
+    }
+    return true
+}, (event) =&gt; {
+    console.log(event)
+}, ['keydown', 'keyup']);
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/liao-yi-liao-typescript-de-zhuang-shi-qi/">
+                  <h3 class="post-title">
+                    聊一聊 TypeScript 的装饰器
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

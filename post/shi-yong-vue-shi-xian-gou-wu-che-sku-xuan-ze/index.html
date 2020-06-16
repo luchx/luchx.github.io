@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>使用 Vue 实现购物车 SKU 选择 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="使用 Vue 实现购物车 SKU 选择
+
+做过商城项目的对于 SKU 来说应该不会陌生，那么前端如何实现 SKU 的动态匹配呢？相信对于第一次做商城项目的小伙伴们来说应该是很费解吧，因为涉及到商品库存、价格、和规格属性等问题。下面就由我来为..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">使用 Vue 实现购物车 SKU 选择</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="使用-vue-实现购物车-sku-选择">使用 Vue 实现购物车 SKU 选择</h1>
+<blockquote>
+<p>做过商城项目的对于 SKU 来说应该不会陌生，那么前端如何实现 SKU 的动态匹配呢？相信对于第一次做商城项目的小伙伴们来说应该是很费解吧，因为涉及到商品库存、价格、和规格属性等问题。下面就由我来为大家展示下如何处理 SKU 及实现购物车 SKU 选择。</p>
+</blockquote>
+<h2 id="一-数据结构">一、数据结构</h2>
+<p>首先我们先看下后端返回的数据结构（这里结构可能会有点差异，但实现原理大致相同）：</p>
+<pre><code class="language-json">{
+  &quot;material_id&quot;: 70,
+  &quot;trade_name&quot;: &quot;Apple iPhone 11 (A2223) 128GB 黑色 移动联通电信4G手机 双卡双待&quot;,
+  &quot;main_img&quot;: DEFAULT_PNG,
+  &quot;sku_list&quot;: [
+    {
+      &quot;sku_id&quot;: 101,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 179,
+      &quot;main_img&quot;: SKU_1_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 143,
+          &quot;attribute_value&quot;: &quot;白色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 243,
+          &quot;attribute_value&quot;: &quot;32G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 343,
+          &quot;attribute_value&quot;: &quot;2019&quot;
+        }
+      ],
+      &quot;stock&quot;: 190
+    },
+    {
+      &quot;sku_id&quot;: 102,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 179,
+      &quot;main_img&quot;: SKU_1_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 143,
+          &quot;attribute_value&quot;: &quot;白色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 243,
+          &quot;attribute_value&quot;: &quot;32G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 344,
+          &quot;attribute_value&quot;: &quot;2020&quot;
+        }
+      ],
+      &quot;stock&quot;: 190
+    },
+    {
+      &quot;sku_id&quot;: 103,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 179,
+      &quot;main_img&quot;: SKU_1_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 143,
+          &quot;attribute_value&quot;: &quot;白色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 244,
+          &quot;attribute_value&quot;: &quot;64G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 343,
+          &quot;attribute_value&quot;: &quot;2019&quot;
+        }
+      ],
+      &quot;stock&quot;: 190
+    },
+    {
+      &quot;sku_id&quot;: 106,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 183,
+      &quot;main_img&quot;: SKU_2_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 144,
+          &quot;attribute_value&quot;: &quot;红色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 243,
+          &quot;attribute_value&quot;: &quot;32G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 343,
+          &quot;attribute_value&quot;: &quot;2019&quot;
+        }
+      ],
+      &quot;stock&quot;: 223
+    },
+    {
+      &quot;sku_id&quot;: 109,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 183,
+      &quot;main_img&quot;: SKU_2_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 144,
+          &quot;attribute_value&quot;: &quot;红色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 244,
+          &quot;attribute_value&quot;: &quot;64G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 344,
+          &quot;attribute_value&quot;: &quot;2020&quot;
+        }
+      ],
+      &quot;stock&quot;: 223
+    },
+    {
+      &quot;sku_id&quot;: 107,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 200,
+      &quot;main_img&quot;: SKU_2_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 145,
+          &quot;attribute_value&quot;: &quot;蓝色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 243,
+          &quot;attribute_value&quot;: &quot;32G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 343,
+          &quot;attribute_value&quot;: &quot;2019&quot;
+        }
+      ],
+      &quot;stock&quot;: 223
+    },
+    {
+      &quot;sku_id&quot;: 108,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 200,
+      &quot;main_img&quot;: SKU_2_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 145,
+          &quot;attribute_value&quot;: &quot;蓝色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 244,
+          &quot;attribute_value&quot;: &quot;64G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 343,
+          &quot;attribute_value&quot;: &quot;2019&quot;
+        }
+      ],
+      &quot;stock&quot;: 223
+    },
+    {
+      &quot;sku_id&quot;: 109,
+      &quot;material_id&quot;: 70,
+      &quot;sku_price&quot;: 200,
+      &quot;main_img&quot;: SKU_2_PNG,
+      &quot;sku_prop&quot;: [
+        {
+          &quot;attribute_id&quot;: 58,
+          &quot;attribute_name&quot;: &quot;颜色&quot;,
+          &quot;attribute_value_id&quot;: 145,
+          &quot;attribute_value&quot;: &quot;蓝色&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 108,
+          &quot;attribute_name&quot;: &quot;内存&quot;,
+          &quot;attribute_value_id&quot;: 244,
+          &quot;attribute_value&quot;: &quot;64G&quot;
+        },
+        {
+          &quot;attribute_id&quot;: 208,
+          &quot;attribute_name&quot;: &quot;上市年份&quot;,
+          &quot;attribute_value_id&quot;: 344,
+          &quot;attribute_value&quot;: &quot;2020&quot;
+        }
+      ],
+      &quot;stock&quot;: 223
+    }
+  ]
+}
+</code></pre>
+<h2 id="二-先前准备">二、先前准备</h2>
+<blockquote>
+<p>当我们拿到这样一份数据我们需要先进行数据格式化，并输出形成以下数据：</p>
+</blockquote>
+<h3 id="1-定义一个数组存储规格列表展示的数据attrgrouplist">1. 定义一个数组存储规格列表展示的数据：attrGroupList</h3>
+<pre><code class="language-javascript">[
+  {
+    attribute_id: 58,
+    attribute_name: &quot;颜色&quot;,
+    valueList: [
+      {
+        attribute_value_id: 143,
+        attribute_value: &quot;白色&quot;,
+      },
+      {
+        attribute_value_id: 144,
+        attribute_value: &quot;红色&quot;,
+      },
+      {
+        attribute_value_id: 145,
+        attribute_value: &quot;蓝色&quot;,
+      },
+    ],
+  },
+  {
+    attribute_id: 108,
+    attribute_name: &quot;内存&quot;,
+    valueList: [
+      {
+        attribute_value_id: 243,
+        attribute_value: &quot;32G&quot;,
+      },
+      {
+        attribute_value_id: 244,
+        attribute_value: &quot;64G&quot;,
+      },
+    ],
+  },
+  {
+    attribute_id: 208,
+    attribute_name: &quot;上市年份&quot;,
+    valueList: [
+      {
+        attribute_value_id: 343,
+        attribute_value: &quot;2019&quot;,
+      },
+      {
+        attribute_value_id: 344,
+        attribute_value: &quot;2020&quot;,
+      },
+    ],
+  },
+];
+</code></pre>
+<h3 id="2-定义一个对象存储同一规格组的数据attrsamekey">2. 定义一个对象存储同一规格组的数据：attrSameKey</h3>
+<pre><code class="language-javascript">{
+  &quot;58&quot;: [
+    143,
+    144,
+    145
+  ],
+  &quot;108&quot;: [
+    243,
+    244
+  ],
+  &quot;208&quot;: [
+    343,
+    344
+  ]
+}
+</code></pre>
+<h3 id="3-定义一个对象用于判断是否存在-sku_id-匹配的数据existskuidkey">3. 定义一个对象用于判断是否存在 sku_id 匹配的数据：existSkuIdKey</h3>
+<pre><code class="language-javascript">{
+  &quot;143|243|343&quot;: {
+    &quot;sku_id&quot;: 101,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 179,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 190
+  },
+  &quot;143|243|344&quot;: {
+    &quot;sku_id&quot;: 102,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 179,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 190
+  },
+  &quot;143|244|343&quot;: {
+    &quot;sku_id&quot;: 103,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 179,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 190
+  },
+  &quot;144|243|343&quot;: {
+    &quot;sku_id&quot;: 106,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 183,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 223
+  },
+  &quot;144|244|344&quot;: {
+    &quot;sku_id&quot;: 109,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 183,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 223
+  },
+  &quot;145|243|343&quot;: {
+    &quot;sku_id&quot;: 107,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 200,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 223
+  },
+  &quot;145|244|343&quot;: {
+    &quot;sku_id&quot;: 108,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 200,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 223
+  },
+  &quot;145|244|344&quot;: {
+    &quot;sku_id&quot;: 109,
+    &quot;material_id&quot;: 70,
+    &quot;sku_price&quot;: 200,
+    &quot;main_img&quot;: &quot;&quot;,
+    &quot;stock&quot;: 223
+  }
+}
+</code></pre>
+<h2 id="三-代码实现">三、代码实现</h2>
+<blockquote>
+<p>具体代码实现请前往 <a href="https://github.com/luchx/VUE_CART_SKU">github 查看</a>，或点击下方图标查看</p>
+</blockquote>
+<figure data-type="image" tabindex="1"><a href="https://codesandbox.io/s/vue-cart-sku-299nt?fontsize=14&amp;hidenavigation=1&amp;theme=dark"><img src="https://cdn.nlark.com/yuque/0/2020/svg/373912/1591508056037-fc5b8a9d-5c64-4f24-ad74-1d6c8ffeae8b.svg#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;size=0&amp;status=done&amp;style=none&amp;width=201#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;status=done&amp;style=none&amp;width=201" alt="sandbox.svg" loading="lazy"></a></figure>
+<h2 id="四-最终效果">四、最终效果</h2>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591506721696-3abb7a89-f569-445a-a84d-889e432a06d8.png#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=696&amp;originWidth=401&amp;size=52490&amp;status=done&amp;style=none&amp;width=401#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;originHeight=696&amp;originWidth=401&amp;status=done&amp;style=none&amp;width=401" alt="image.png" loading="lazy"><br>
+<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507235477-0333b109-9b1c-4f1c-9f78-96d69552ee1b.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=395&amp;size=62118&amp;status=done&amp;style=none&amp;width=395#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=395&amp;status=done&amp;style=none&amp;width=395" alt="image.png" loading="lazy"><br>
+<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507849846-bfa08971-6213-4fd5-b865-abf37404756a.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=399&amp;size=37091&amp;status=done&amp;style=none&amp;width=399#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=399&amp;status=done&amp;style=none&amp;width=399" alt="image.png" loading="lazy"></p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/shou-xie-shi-xian-dai-ma-new/">
+                  <h3 class="post-title">
+                    手写实现代码（new）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

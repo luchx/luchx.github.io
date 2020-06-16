@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>写一个带期限的本地存储 hook | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+数据存储有效期的方案，支持 localStorage 和 sessionStorage 两种实现。
+
+import { useState, useCallback, useMemo } from 'react';
+
+type IType ..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">写一个带期限的本地存储 hook</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <blockquote>
+<p>数据存储有效期的方案，支持 localStorage 和 sessionStorage 两种实现。</p>
+</blockquote>
+<pre><code class="language-tsx">import { useState, useCallback, useMemo } from 'react';
+
+type IType = 'localStorage' | 'sessionStorage' | undefined;
+
+function useExpireStorage&lt;T&gt;(key: string, defaultValue?: T, type: IType = 'localStorage') {
+  const privateKey: string = `private_storage_key_${key}`;
+  const storage: Storage = window[type];
+  const [state, setState] = useState(defaultValue);
+
+  /**
+   * 设置键值
+   * @param [any] val 值
+   * @param [number = 0] maxAge 存储时间：s | ms
+   */
+  const setValue = useCallback((val: T, maxAge: number = 0) =&gt; {
+    // 设置持续时间小于10的自动转化
+    const duration = maxAge &lt; 10 ? maxAge * 1000 : maxAge;
+    // 返回有效期
+    const expires = maxAge === 0 ? 0 : Date.now() + duration;
+    const data = {
+      val,
+      expires,
+    };
+    storage[privateKey] = JSON.stringify(data);
+    setState(val);
+  }, []);
+
+  // 移除键值
+  const remove = useCallback(() =&gt; {
+    delete storage[privateKey];
+    setState(defaultValue);
+  }, []);
+
+  // 返回当前存储的值
+  const value: T = useMemo(() =&gt; {
+    // 防止首次取不到值出现的错误
+    const data = storage[privateKey] &amp;&amp; JSON.parse(storage[privateKey]);
+    if (!data) {
+      return state;
+    }
+
+    // 不设定期限或者处于有效期内
+    if (data.expires === 0 || Date.now() &lt; data.expires) {
+      return data.val;
+    }
+
+    // 移除键值，防止超期缓存
+    remove();
+    return state;
+  }, [state]);
+
+  return {
+    value,
+    setValue,
+    remove,
+  };
+}
+
+export default useExpireStorage;
+
+</code></pre>
+<blockquote>
+<p>单元测试</p>
+</blockquote>
+<pre><code class="language-js">import { renderHook, act } from '@testing-library/react-hooks';
+import useExpireStorage from '../index';
+
+const privateKey = 'private_storage_key_';
+
+const callSetValue = (hook: any, value: any, expire?: number) =&gt; {
+  act(() =&gt; {
+    hook.result.current.setValue(value, expire);
+  });
+};
+
+const callRemove = (hook: any) =&gt; {
+  act(() =&gt; {
+    hook.result.current.remove();
+  });
+};
+
+describe('useExpireStorage', () =&gt; {
+  it('should be defined', () =&gt; {
+    expect(useExpireStorage).toBeDefined();
+  });
+
+  beforeAll(() =&gt; {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() =&gt; {
+    jest.clearAllTimers();
+  });
+
+  afterAll(() =&gt; {
+    jest.useRealTimers();
+  });
+
+  it('test on init', () =&gt; {
+    const hook = renderHook(() =&gt; useExpireStorage('storage', 'Hello World !!!'));
+    expect(hook.result.current.value).toEqual('Hello World !!!');
+  });
+
+  it('test on methods', async () =&gt; {
+    const hook = renderHook(() =&gt; useExpireStorage('storage'));
+    expect(hook.result.current.value).toBeUndefined();
+    callSetValue(hook, 'Hello World !!!');
+    expect(hook.result.current.value).toEqual('Hello World !!!');
+    callRemove(hook);
+    expect(hook.result.current.value).toBeUndefined();
+  });
+
+  it.each(['localStorage', 'sessionStorage'])('test on expire for %d', (type: any) =&gt; {
+    const hook = renderHook(() =&gt; useExpireStorage('storage', '', type));
+    callSetValue(hook, 'Hello World !!!', 1000);
+    expect(hook.result.current.value).toEqual('Hello World !!!');
+    // 设置强制过期
+    callSetValue(hook, '123', -1);
+    const storage: Storage | any = window[type];
+    expect(storage.getItem(`${privateKey}storage`)).toBeNull();
+  });
+});
+
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/xie-yi-ge-zi-yong-de-qian-duan-jiao-shou-jia/">
+                  <h3 class="post-title">
+                    写一个自用的前端脚手架
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>从源码分析vue-cli@3.0环境变量配置 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="前言
+
+在开始之前，我们先来看下官方文档说明；查看vue-cli文档中有这么一句话：
+
+只有以 VUE_APP_ 开头的变量会被 webpack.DefinePlugin 静态嵌入到客户端侧的包中。
+
+由此我们可以知道，vue-cli 是有..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">从源码分析vue-cli@3.0环境变量配置</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <h3 id="前言">前言</h3>
+<blockquote>
+<p>在开始之前，我们先来看下官方文档说明；查看<a href="https://cli.vuejs.org/zh/guide/mode-and-env.html#%E7%A4%BA%E4%BE%8B%EF%BC%9Astaging-%E6%A8%A1%E5%BC%8F">vue-cli文档</a>中有这么一句话：</p>
+</blockquote>
+<pre><code>只有以 VUE_APP_ 开头的变量会被 webpack.DefinePlugin 静态嵌入到客户端侧的包中。
+</code></pre>
+<p>由此我们可以知道，<code>vue-cli</code> 是有针对 <code>VUE_APP_</code> 这个变量进行配置。接下来让我们查看源码，看下<code>vue-cli</code>是怎么实现的。</p>
+<h3 id="源码分析">源码分析</h3>
+<p>查看根路径的 <code>package.json</code> 文件我们可以知道，当执行 <code>npm run serve</code> 时会执行 <code>vue-cli-service</code>；所以我们找到该文件的执行地址<code>node_modules/@vue/cli-service</code>。</p>
+<p>分析其 <code>package.json</code> 我们知道，当我们执行 <code>vue-cli-service</code> 时候会调用文件 <code>lib/Service.js</code> 中 <code>init</code> 函数：</p>
+<pre><code class="language-js">init (mode = process.env.VUE_CLI_MODE) {
+    ...
+    this.mode = mode
+
+    // load mode .env
+    if (mode) {
+      this.loadEnv(mode)
+    }
+    // load base .env
+    this.loadEnv()
+    ...
+  }
+</code></pre>
+<p>紧接着我们再来看<code>loadEnv</code>方法</p>
+<pre><code class="language-js">loadEnv (mode) {
+    const logger = debug('vue:env')
+    const basePath = path.resolve(this.context, `.env${mode ? `.${mode}` : ``}`)
+    // 注意这里，不管你有没有定义它都会在后面加上一个.local的后缀，感觉这里不是很好
+    const localPath = `${basePath}.local`
+
+    const load = path =&gt; {
+        try {
+            const env = dotenv.config({ path, debug: process.env.DEBUG })
+            dotenvExpand(env)
+            logger(path, env)
+        } catch (err) {
+            // only ignore error if file is not found
+            if (err.toString().indexOf('ENOENT') &lt; 0) {
+                error(err)
+            }
+        }
+    }
+
+    load(localPath)
+    load(basePath)
+
+    ...
+}
+</code></pre>
+<p>这里会先调用 <code>dotenv</code>（位于 <code>node_modules/dotenv</code> ）的 <code>config</code> 函数，最终会返回这样的格式 <code>{ parsed: { YOUR_ENV_KEY: '你设定的环境变量值' } }</code>。<br>
+并且我们可以看到，这里已经将值存放到<code>process.env</code>中了。</p>
+<pre><code class="language-js">function config (options /*: ?DotenvConfigOptions */) /*: DotenvConfigOutput */ {
+  ...
+
+  try {
+    // specifying an encoding returns a string instead of a buffer
+    const parsed = parse(fs.readFileSync(dotenvPath, { encoding }), { debug })
+
+    Object.keys(parsed).forEach(function (key) {
+      if (!process.env.hasOwnProperty(key)) {
+        process.env[key] = parsed[key]
+      } else if (debug) {
+        log(`&quot;${key}&quot; is already defined in \`process.env\` and will not be overwritten`)
+      }
+    })
+
+    return { parsed }
+  } catch (e) {
+    return { error: e }
+  }
+}
+</code></pre>
+<p>这里再说下 <code>parse</code> 方法，会读取你设置的所有 <code>.env</code> 文件，然后将里面的数据转换成对象，简单来说就是 <code>以换行符号来循环，用正则匹配出内容</code>，最终形成以<code>{key: value}</code>的格式输出。</p>
+<pre><code class="language-js">const NEWLINE = '\n'
+const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
+const RE_NEWLINES = /\\n/g
+
+function parse (src /*: string | Buffer */, options /*: ?DotenvParseOptions */) /*: DotenvParseOutput */ {
+  const debug = Boolean(options &amp;&amp; options.debug)
+  const obj = {}
+
+  // convert Buffers before splitting into lines and processing
+  src.toString().split(NEWLINE).forEach(function (line, idx) {
+    // matching &quot;KEY' and 'VAL' in 'KEY=VAL'
+    const keyValueArr = line.match(RE_INI_KEY_VAL)
+    // matched?
+    if (keyValueArr != null) {
+      const key = keyValueArr[1]
+      // default undefined or missing values to empty string
+      let val = (keyValueArr[2] || '')
+      const end = val.length - 1
+      const isDoubleQuoted = val[0] === '&quot;' &amp;&amp; val[end] === '&quot;'
+      const isSingleQuoted = val[0] === &quot;'&quot; &amp;&amp; val[end] === &quot;'&quot;
+
+      // if single or double quoted, remove quotes
+      if (isSingleQuoted || isDoubleQuoted) {
+        val = val.substring(1, end)
+
+        // if double quoted, expand newlines
+        if (isDoubleQuoted) {
+          val = val.replace(RE_NEWLINES, NEWLINE)
+        }
+      } else {
+        // remove surrounding whitespace
+        val = val.trim()
+      }
+
+      obj[key] = val
+    } else if (debug) {
+      log(`did not match key and value when parsing line ${idx + 1}: ${line}`)
+    }
+  })
+
+  return obj
+}
+</code></pre>
+<p>然后我们再来看下 <code>dotenvExpand</code> 方法，找到它位于 <code>node_modules/dotenv-expand</code> 下，这里就没啥好说的，就是将几个环境变量的值放到一起</p>
+<p>接下来让我们回到开头说的 <code>只有以 VUE_APP_ 开头的变量会被 webpack.DefinePlugin 静态嵌入到客户端侧的包中</code>，这个是在那里配置的呢？</p>
+<p>我们知道 <code>vue-cli</code> 会对 <code>webpack</code> 进行配置扩展，所以我们发现在 <code>cli-service/lib/config/app.js</code> 中</p>
+<pre><code class="language-js">const resolveClientEnv = require('../util/resolveClientEnv')
+    webpackConfig
+      .plugin('define')
+        .use(require('webpack/lib/DefinePlugin'), [
+          resolveClientEnv(options)
+        ])
+</code></pre>
+<p>我们接着找到 <code>resolveClientEnv</code> 方法，可以看到是在这里定义的，并且会将非 <code>VUE_APP_</code> 开头的过滤掉</p>
+<pre><code class="language-js">const prefixRE = /^VUE_APP_/
+
+module.exports = function resolveClientEnv (options, raw) {
+  const env = {}
+  Object.keys(process.env).forEach(key =&gt; {
+    if (prefixRE.test(key) || key === 'NODE_ENV') {
+      env[key] = process.env[key]
+    }
+  })
+  // 需要注意的是 `baseUrl` 从 `Vue CLI 3.3` 起已弃用，请使用 `publicPath` 。以下源码涉及此改动
+  env.BASE_URL = options.publicPath
+
+  if (raw) {
+    return env
+  }
+
+  for (const key in env) {
+    env[key] = JSON.stringify(env[key])
+  }
+  return {
+    'process.env': env
+  }
+}
+</code></pre>
+<h3 id="总结">总结</h3>
+<ol>
+<li><code>.env</code> 和 <code>.env.local</code> 定义的环境变量会被全局引用，并会与其它环境变量合并</li>
+<li>声明环境变量必须以 <code>VUE_APP_</code> 开头，不然会被过滤掉</li>
+<li>除了 <code>VUE_APP_*</code> 变量之外，在你的应用代码中始终可用的还有两个特殊的变量：<code>NODE_ENV</code> 和 <code>BASE_URL</code></li>
+</ol>
+<p>如果对您有帮助,请为我点个小星星。</p>
+<p>也欢迎大家交流分享自己的开发心得~</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/guan-yu-vue-cli-3-pei-zhi-da-bao-you-hua-yao-dian/">
+                  <h3 class="post-title">
+                    关于vue-cli 3配置打包优化要点
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

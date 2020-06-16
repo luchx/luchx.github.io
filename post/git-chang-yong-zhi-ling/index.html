@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Git 常用指令 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+一、使用配置
+1. 全局配置
+# 配置用户名
+git config --global user.name 'xxx'
+
+# 配置邮箱
+git config --global user.email 'xxx@xxx'
+
+# 配置大小写敏感
+..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Git 常用指令</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <figure data-type="image" tabindex="1"><img src="https://cdn.nlark.com/yuque/0/2020/webp/373912/1589794284429-741771a3-4d4e-4bb3-a41e-23df8ab41411.webp#align=left&amp;display=inline&amp;height=524&amp;margin=%5Bobject%20Object%5D&amp;originHeight=1276&amp;originWidth=1816&amp;size=0&amp;status=done&amp;style=none&amp;width=746" alt="git.png" loading="lazy"></figure>
+<h2 id="一-使用配置">一、使用配置</h2>
+<h3 id="1-全局配置">1. 全局配置</h3>
+<pre><code class="language-bash"># 配置用户名
+git config --global user.name 'xxx'
+
+# 配置邮箱
+git config --global user.email 'xxx@xxx'
+
+# 配置大小写敏感
+git config core.ignorecase false
+
+# git status等命令自动着色
+git config --global color.ui true
+git config --global color.status auto
+git config --global color.diff auto
+git config --global color.branch auto
+git config --global color.interactive auto
+</code></pre>
+<h3 id="2-本地配置">2. 本地配置</h3>
+<blockquote>
+<p>在全局配置的基础上将 <code>--global</code>  改成 <code>--local</code></p>
+</blockquote>
+<h2 id="二-创建版本库"><strong>二、创建版本库</strong></h2>
+<h3 id="1-初始化本地仓库">1. 初始化本地仓库</h3>
+<pre><code class="language-bash">git init
+</code></pre>
+<h3 id="2-拉取远程仓库">2. 拉取远程仓库</h3>
+<pre><code class="language-bash">git clone '远程仓库 git 地址'
+</code></pre>
+<h3 id="3-关联远程仓库">3. 关联远程仓库</h3>
+<pre><code class="language-bash">git remote add origin '远程仓库 git 地址'
+</code></pre>
+<h2 id="三-分支和标签">三、分支和标签</h2>
+<h3 id="1-显示当前分支">1. 显示当前分支</h3>
+<pre><code class="language-bash">git branch
+</code></pre>
+<h3 id="2-显示全部分支">2. 显示全部分支</h3>
+<pre><code class="language-bash">git branch -a
+</code></pre>
+<h3 id="3-本地分支改名">3. <strong>本地分支改名</strong></h3>
+<pre><code class="language-bash">#当前分支
+git branch -m new_branch
+
+# 非当前分支
+git branch -m origin_branch new_branch
+</code></pre>
+<h3 id="4-从当前分支创建新分支并检出">4. <strong>从当前分支创建新分支并检出</strong></h3>
+<pre><code class="language-bash">git checkout -b new_branch
+
+# 完整版
+git checkout -b current_branch new_branch
+</code></pre>
+<h3 id="5-检出已存在的分支">5. 检出已存在的分支</h3>
+<pre><code class="language-bash">git checkout xxx
+</code></pre>
+<h2 id="四-修改和提交">四、修改和提交</h2>
+<h3 id="1-暂存相关">1. 暂存相关</h3>
+<pre><code class="language-bash"># 暂存版本
+git stash
+
+# 查看所有暂存
+git stash list
+
+# 应用最后一次暂存
+git stash pop
+</code></pre>
+<h3 id="2-添加文件">2. 添加文件</h3>
+<pre><code class="language-bash"># 添加单个文件
+git add xxx
+
+# 添加所有
+git add .
+</code></pre>
+<h3 id="3-提交">3. <strong>提交</strong></h3>
+<pre><code class="language-bash"># 直接提交
+git commit -m 'xxx'
+
+# 合并上一次提交（用于反复修改）
+git commit --amend -m 'xxx'
+
+# 将add和commit合为一步
+git commit -am 'xxx'
+
+# 忽略 git commit 校验
+git commit -n -m 'xxx'
+</code></pre>
+<h2 id="五-查看提交历史">五、查看提交历史</h2>
+<h3 id="1-显示提交日志">1. <strong>显示提交日志</strong></h3>
+<pre><code class="language-bash"># 顺序打印提交记录
+git log
+
+# 格式显示历史提交信息
+git log --pretty=oneline
+
+# 显示提交日志及相关变动文件
+git log --stat
+git log -p -m
+</code></pre>
+<h3 id="2-显示变更">2. 显示变更</h3>
+<pre><code class="language-bash"># 显示所有未添加至index的变更
+git diff
+
+# 显示所有已添加index但还未commit的变更
+git diff --cached
+
+# 比较与上一个版本的差异
+git diff HEAD^
+
+# 比较远程分支master上有本地分支master上没有的
+git diff origin/master..master
+
+# 只显示差异的文件，不显示具体内容
+git diff origin/master..master --stat
+</code></pre>
+<h2 id="六-删除和撤销">六、删除和撤销</h2>
+<h3 id="1-删除">1. 删除</h3>
+<pre><code class="language-bash"># 删除index中的文件
+git rm xxx
+
+# 删除分支
+it branch -d xxx
+
+# 强制删除分支
+git branch -D
+</code></pre>
+<h3 id="2-撤销">2. 撤销</h3>
+<pre><code class="language-bash"># 撤销提交 commitId: xxx-commitid
+git revert xxx-commitid
+
+# 回退一个版本
+git reset --hard head^
+
+# 回退 commitId: xxx-commitid
+git reset --hard xxx-commitid
+</code></pre>
+<h2 id="七-合并和-rebase">七、合并和 Rebase</h2>
+<h3 id="1-合并">1. 合并</h3>
+<pre><code class="language-bash"># 合并远程master分支至当前分支
+git merge origin/master
+</code></pre>
+<h3 id="2-rebase">2. Rebase</h3>
+<pre><code class="language-bash"># 合并最近的 n 次提交纪录
+git rebase -i HEAD~n
+
+# 合并远程master分支至当前分支
+git rebase master
+</code></pre>
+<h2 id="八-远程仓库">八、远程仓库</h2>
+<h3 id="1-关联远程仓库">1. 关联远程仓库</h3>
+<pre><code class="language-bash">git remote add origin '远程仓库地址'
+</code></pre>
+<h3 id="2-获取同步远程分支">2. 获取同步远程分支</h3>
+<pre><code class="language-bash"># 获取所有远程分支（不更新本地分支，另需merge）
+git fetch
+
+# 获取所有原创分支并清除服务器上已删掉的分支
+git fetch --p
+git fetch --prune
+
+# 获取远程分支master并merge到当前分支
+git pull origin master
+</code></pre>
+<h3 id="3-推送远程分支">3. 推送远程分支</h3>
+<blockquote>
+<p>==git push origin与git push -u origin master的区别<br>
+$ git push origin<br>
+上面命令表示，将当前分支推送到origin主机的对应分支。<br>
+如果当前分支只有一个追踪分支，那么主机名都可以省略。<br>
+$ git push 如果当前分支与多个主机存在追踪关系，那么这个时候-u选项会指定一个默认主机，<br>
+这样后面就可以不加任何参数使用git push。<br>
+$ git push -u origin master 上面命令将本地的master分支推送到origin主机，同时指定origin为默认主机，<br>
+后面就可以不加任何参数使用git push了。 不带任何参数的git push，默认只推送当前分支，这叫做simple方式。<br>
+此外，还有一种matching方式，会推送所有有对应的远程分支的本地分支。<br>
+Git 2.0版本之前，默认采用matching方法，现在改为默认采用simple方式。</p>
+</blockquote>
+<pre><code class="language-bash"># 推送已存在的分支
+git push
+
+# 首次推送
+git push origin master:master
+git push -u origin master
+</code></pre>
+<h3 id="4-删除远程分支">4. 删除远程分支</h3>
+<pre><code class="language-bash"># 删除远程仓库的 remote_branch 分支
+git push origin :remote_branch
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/dong-shou-shi-xian-yi-ge-json-bian-ji-qi/">
+                  <h3 class="post-title">
+                    动手实现一个JSON编辑器
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

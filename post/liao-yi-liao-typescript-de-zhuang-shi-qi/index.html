@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>聊一聊 TypeScript 的装饰器 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。 装饰器使用 @expression 这种形式，expression 求值后必须为一个函数，它会在运行时被调用，被装饰的声明信息做为参数传入。
+
+（一）使用
+..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">聊一聊 TypeScript 的装饰器</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <blockquote>
+<p>装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。 装饰器使用 @expression 这种形式，expression 求值后必须为一个函数，它会在运行时被调用，被装饰的声明信息做为参数传入。</p>
+</blockquote>
+<h2 id="一使用">（一）使用</h2>
+<blockquote>
+<p>注意：装饰器是一项实验性特性，在未来的版本中可能会发生改变。</p>
+</blockquote>
+<p>在 TypeScript 中装饰器还属于实验性语法，你必须在命令行或 tsconfig.json 里启用 experimentalDecorators 编译器选项：</p>
+<ul>
+<li>命令行:</li>
+</ul>
+<pre><code class="language-ts">tsc --target ES5 --experimentalDecorators
+</code></pre>
+<ul>
+<li>tsconfig.json:</li>
+</ul>
+<pre><code class="language-ts">{
+    &quot;compilerOptions&quot;: {
+        &quot;target&quot;: &quot;ES5&quot;,
+        &quot;experimentalDecorators&quot;: true
+    }
+}
+</code></pre>
+<h3 id="1-装饰类">1、装饰类</h3>
+<p>针对类的修饰，会接受一个参数即类对象本身，下文通过对类添加静态属性实现。</p>
+<pre><code class="language-ts">@testable
+class Demo{}
+
+function testable(target) {
+    target.isTestable=true
+}
+
+console.log(Demo.isTestable) // true
+</code></pre>
+<h3 id="2-装饰类方法">2、 装饰类方法</h3>
+<p>针对类方法修饰，函数会接收3个参数：</p>
+<ul>
+<li>1、target：当前对象的原型</li>
+<li>2、key：当前方法名</li>
+<li>3、descriptor：方法的属性描述符</li>
+</ul>
+<pre><code class="language-ts">// descriptor对象原来的值如下
+// {
+//   value: specifiedFunction,
+//   enumerable: false,
+//   configurable: true,
+//   writable: true
+// };
+
+// target:在方法中的target指向类的prototype
+function readonly(target,key,descriptor){
+    descriptor.writable=false
+    return descriptor
+}
+
+class Demo {
+    @readonly
+    print(){console.log(`a:${this.a}`)}
+}
+</code></pre>
+<h3 id="3-装饰类属性">3、 装饰类属性</h3>
+<p>针对类属性装饰器，函数会接收2个参数：</p>
+<ul>
+<li>1、target：当前对象的原型</li>
+<li>2、key：当前属性名</li>
+</ul>
+<pre><code class="language-ts">function set(value: string) {
+    return function (target: any, propertyName: string) {
+        target[propertyName] = value;
+    }
+}
+
+class Demo {
+    @set(&quot;hello world&quot;) greeting: string;
+}
+
+console.log(new Demo().greeting);// hello world
+</code></pre>
+<h2 id="二装饰器的执行顺序">（二）装饰器的执行顺序</h2>
+<blockquote>
+<p>多个修饰器的执行顺序是由外向内进入；再由内向外执行。</p>
+</blockquote>
+<pre><code class="language-ts">class Demo {
+    @log(1)
+    @log(2)
+    method(){}
+}
+
+function log(id){
+    console.log('id is ',id)
+    return (target,property,descriptor)=&gt;console.log('executed',id)
+}
+
+// 控制台输出
+// id is  1
+// id is  2
+// executed 2
+// executed 1
+</code></pre>
+<h2 id="三实现几个简单的装饰器">（三）实现几个简单的装饰器</h2>
+<blockquote>
+<p>本文用到的个小方法</p>
+</blockquote>
+<pre><code class="language-ts">// 返回空对象
+export const noop = () =&gt; { };
+
+/**
+ * 判断对象类型
+ * @param [obj: any] 参数对象
+ * @returns String
+ */
+export function isType(obj) {
+  return Object.prototype.toString.call(obj).replace(/^\[object (.+)\]$/, '$1').toLowerCase();
+}
+</code></pre>
+<h3 id="1-装饰器实现异常捕获">1、装饰器实现异常捕获</h3>
+<pre><code class="language-ts">/**
+ * 用于捕获Error
+ * @tips 请注意,参数params中的回调函数不能使用箭头函数,否则将会引起上下文变动
+ * @param [Object | Function] params 接收异常捕获回调,非必选参数
+ * @param [params.callback] callback 默认接收Function类型的参数,或者接收 Object 对象中的callback方法
+ * @returns descriptor
+ */
+export const DRCatchError = (params: any = noop) =&gt; (target, key, descriptor) =&gt; {
+    const original = descriptor.value;
+    let errorHandler: any = null;
+    if (isType(params) === 'function') {
+        errorHandler = params;
+    } else if (isType(params) === 'object') {
+        errorHandler = params.callback;
+    }
+    descriptor.value = async function () {
+        try {
+            await original.apply(this, arguments);
+        } catch (error) {
+            let resp = (error &amp;&amp; error.response) || {};
+            let errorData = resp.data || error.message;
+            if (typeof errorHandler === 'function') {
+                errorHandler.call(this, errorData);
+            } else {
+                console.error(error);
+            }
+        }
+    };
+    return descriptor;
+};
+</code></pre>
+<h3 id="2-装饰器实现防抖">2、装饰器实现防抖</h3>
+<pre><code class="language-ts">/**
+* 用于操作方法防抖
+* @param [wait: number] 延时ms
+* @param [immediate: boolean] 立即执行
+* @returns descriptor
+*/
+export const DRDebounce = (wait: number, immediate: boolean = false) =&gt; (target, key, descriptor) =&gt; {
+   let timeout: any;
+   const original = descriptor.value;
+   descriptor.value = function () {
+       let later = () =&gt; {
+           timeout = null;
+           if (!immediate) {
+               original.apply(this, arguments);
+           }
+       };
+       let callNow = immediate &amp;&amp; !timeout;
+       clearTimeout(timeout);
+       timeout = setTimeout(later, wait);
+       if (callNow) {
+           original.apply(this, arguments);
+       }
+   };
+   return descriptor;
+};
+</code></pre>
+<h3 id="3-装饰器实现节流">3、装饰器实现节流</h3>
+<pre><code class="language-ts">/**
+* 用于操作函数节流
+*  @param [delay: number] 延时ms
+*/
+export const DRThrottle = (delay: number) =&gt; (target, key, descriptor) =&gt; {
+   let last: any;
+   let deferTimer: any;
+   const original = descriptor.value;
+   descriptor.value = function() {
+       let now = +new Date();
+       if (last &amp;&amp; now &lt; last + delay) {
+           clearTimeout(deferTimer);
+           deferTimer = setTimeout(() =&gt; {
+               last = now;
+               original.apply(this, arguments);
+           }, delay);
+       }else {
+           last = now;
+           original.apply(this, arguments);
+       }
+   };
+   return descriptor;
+};
+</code></pre>
+<h2 id="四参考链接">（四）参考链接</h2>
+<ul>
+<li><a href="http://es6.ruanyifeng.com/#docs/decorator">阮一峰的ES6入门 -- 修饰器</a></li>
+<li><a href="https://www.tslang.cn/docs/handbook/decorators.html">Typescript 中文网</a></li>
+<li><a href="https://www.cnblogs.com/winfred/p/8216650.html">TypeScript装饰器（decorators）</a></li>
+</ul>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/xie-yi-ge-dai-qi-xian-de-ben-di-cun-chu-hook/">
+                  <h3 class="post-title">
+                    写一个带期限的本地存储 hook
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

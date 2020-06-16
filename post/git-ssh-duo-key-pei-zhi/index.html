@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>标签列表 | Echi 的小笔记</title>
+<title>Git ssh 多 key 配置 | Echi 的小笔记</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,7 +18,20 @@
 
 
 
-    <meta name="description" content="姿态低人一等 心态高人一等">
+    <meta name="description" content="1. 查看配置的 SSH-Key
+cd ~/.ssh
+ls
+    id_rsa
+  id_rsa.pub
+  known_hosts
+
+2. 生成 SSH-Key
+
+生成多个重复以下步骤
+
+# 生成默认的
+ssh-keygen -t rs..." />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div id="app" class="main">
@@ -92,10 +105,76 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <h2 class="tag-list-title">标签列表</h2>
-          <div class="tags-container">
+          <div class="post-detail">
+            <h2 class="post-title">Git ssh 多 key 配置</h2>
+            <div class="post-date">2020-06-16</div>
             
+            <div class="post-content" v-pre>
+              <h2 id="1-查看配置的-ssh-key">1. 查看配置的 SSH-Key</h2>
+<pre><code class="language-bash">cd ~/.ssh
+ls
+    id_rsa
+  id_rsa.pub
+  known_hosts
+</code></pre>
+<h2 id="2-生成-ssh-key">2. 生成 SSH-Key</h2>
+<blockquote>
+<p>生成多个重复以下步骤</p>
+</blockquote>
+<pre><code class="language-bash"># 生成默认的
+ssh-keygen -t rsa -C &quot;example@email.com&quot;
+# 生成指定为 github 的 ssh key
+ssh-keygen -t rsa -C &quot;example@email.com” -f ~/.ssh/id_rsa_github
+# 生成指定为 gitlab 的 ssh key
+ssh-keygen -t rsa -C &quot;example@email.com” -f ~/.ssh/id_rsa_gitlab
+</code></pre>
+<h2 id="3-配置config">3. 配置config</h2>
+<blockquote>
+<p>在 ~/.ssh 目录下新建一个config文件</p>
+</blockquote>
+<pre><code class="language-bash"># github
+Host github.com
+    HostName github.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/id_rsa_github
+ 
+# gitlab
+Host gitlab.com
+    HostName gitlab.com
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/id_rsa_gitlab
+</code></pre>
+<h2 id="4-添加-ssh-key">4. 添加 SSH-Key</h2>
+<blockquote>
+<p>如果执行ssh-add时提示&quot;Could not open a connection to your authentication agent&quot;，可以先执行命令：ssh-agent bash</p>
+</blockquote>
+<pre><code class="language-bash">ssh-add ~/.ssh/id_rsa_github
+</code></pre>
+<h2 id="5-复制-ssh-key">5. 复制 SSH-Key</h2>
+<blockquote>
+<p>可以直接找到 .ssh 目录下生成的 id_rsa.pub 文件，使用 vscode 打开后复制文本</p>
+</blockquote>
+<pre><code class="language-bash"># 复制 github 的 ssh key
+cat ~/.ssh/id_rsa_github
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/git-chang-yong-zhi-ling/">
+                  <h3 class="post-title">
+                    Git 常用指令
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
           </div>
+
         </div>
       </div>
     </div>

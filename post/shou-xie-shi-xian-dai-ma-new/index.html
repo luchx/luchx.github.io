@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>手写实现代码（new） | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一、new 做了什么？
+(1) 创建一个新对象；
+(2) 将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象） ；
+(3) 执行构造函数中的代码（为这个新对象添加属性） ；
+(4) 返回新对象。
+二、如何实现
+// 方法一
+f..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">手写实现代码（new）</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="一-new-做了什么">一、new 做了什么？</h2>
+<p>(1) 创建一个新对象；<br>
+(2) 将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象） ；<br>
+(3) 执行构造函数中的代码（为这个新对象添加属性） ；<br>
+(4) 返回新对象。</p>
+<h2 id="二-如何实现">二、如何实现</h2>
+<pre><code class="language-js">// 方法一
+function myNew() {
+  // 通过arguments类数组打印出的结果，我们可以看到其中包含了构造函数以及我们调用objectfactory时传入的其他参数
+  // 接下来就是要想如何得到其中这个构造函数和其他的参数
+  // 由于arguments是类数组，没有直接的方法可以供其使用，我们可以有以下两种方法:
+  // 1. Array.from(arguments).shift(); //转换成数组 使用数组的方法shift将第一项弹出
+  // 2.[].shift().call(arguments); // 通过call() 让arguments能够借用shift方法
+  const Constructor = [].shift.call(arguments);
+  const args = arguments;
+  // 新建一个空对象 纯洁无邪
+  let obj = new Object();
+  // 接下来的想法 给obj这个新生对象的原型指向它的构造函数的原型
+  // 给构造函数传入属性，注意：构造函数的this属性
+  // 参数传进Constructor对obj的属性赋值，this要指向obj对象
+  // 在Coustructor内部手动指定函数执行时的this 使用call、apply实现
+  Constructor.call(obj, ...args);
+  return obj;
+}
+
+// 方法二
+function createNew() {
+  //创建一个空对象
+  let obj = new Object();
+  //获取构造函数
+  let Constructor = [].shift.call(arguments);
+  //链接到原型
+  obj.__proto__ = Constructor.prototype;
+  //绑定this值
+  let result = Constructor.apply(obj, arguments); //使用apply，将构造函数中的this指向新对象，这样新对象就可以访问构造函数中的属性和方法
+  //返回新对象
+  return typeof result === &quot;object&quot; ? result : obj; //如果返回值是一个对象就返回该对象，否则返回构造函数的一个实例对象
+}
+</code></pre>
+<h2 id="三-测试实例">三、测试实例</h2>
+<pre><code class="language-js">function Person(name, age) {
+  this.name = name;
+  this.age = age;
+  this.say = function () {
+    console.log(&quot;I am &quot; + this.name);
+  };
+}
+
+//通过 new 创建构造实例
+let person1 = new Person(&quot;Curry&quot;, 18);
+console.log(person1.name); //&quot;Curry&quot;
+console.log(person1.age); //18
+person1.say(); //&quot;I am Curry'
+
+//通过 myNew() 方法创造实例
+let person2 = myNew(Person, &quot;Curry&quot;, 18);
+console.log(person2.name); //&quot;Curry&quot;
+console.log(person2.age); //18
+person2.say(); //&quot;I am Curry'
+
+//通过 createNew() 方法创造实例
+let person3 = createNew(Person, &quot;Curry&quot;, 18);
+console.log(person3.name); //&quot;Curry&quot;
+console.log(person3.age); //18
+person3.say(); //&quot;I am Curry'
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/git-ssh-duo-key-pei-zhi/">
+                  <h3 class="post-title">
+                    Git ssh 多 key 配置
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

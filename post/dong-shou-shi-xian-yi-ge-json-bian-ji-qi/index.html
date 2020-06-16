@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>标签列表 | Echi 的小笔记</title>
+<title>动手实现一个JSON编辑器 | Echi 的小笔记</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,7 +18,10 @@
 
 
 
-    <meta name="description" content="姿态低人一等 心态高人一等">
+    <meta name="description" content="import React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import * as codemirror from '..." />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div id="app" class="main">
@@ -92,10 +95,93 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <h2 class="tag-list-title">标签列表</h2>
-          <div class="tags-container">
+          <div class="post-detail">
+            <h2 class="post-title">动手实现一个JSON编辑器</h2>
+            <div class="post-date">2020-06-16</div>
             
+            <div class="post-content" v-pre>
+              <pre><code class="language-js">import React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import * as codemirror from 'codemirror';
+
+// 引入全局样式
+import 'codemirror/lib/codemirror.css';
+// // 主题风格
+import 'codemirror/theme/dracula.css';
+// // 代码模式
+import 'codemirror/mode/javascript/javascript';
+
+// 添加折叠
+require('codemirror/addon/fold/brace-fold.js');
+require('codemirror/addon/fold/comment-fold.js');
+require('codemirror/addon/fold/foldcode.js');
+require('codemirror/addon/fold/foldgutter.js');
+require('codemirror/addon/fold/foldgutter.css');
+
+// 括号匹配
+require('codemirror/addon/edit/matchbrackets.js');
+
+// 自动补全
+require('codemirror/addon/hint/show-hint.css');
+require('codemirror/addon/hint/show-hint.js');
+require('codemirror/addon/hint/anyword-hint.js');
+
+// 代码检查错误
+require('codemirror/addon/lint/json-lint.js');
+require('codemirror/addon/lint/lint.css');
+require('codemirror/addon/lint/lint.js');
+const jsonlint = require('jsonlint-mod');
+// eslint-disable-next-line dot-notation
+window['jsonlint'] = jsonlint; // 不能删除，json-lint有依赖
+
+// 引入格式化文件
+const jsBeautify = require('js-beautify');
+
+const CodeSnnipet: React.FC&lt;{
+  snippet: string;
+  onChange?: (editor: codemirror.Editor, data: codemirror.EditorChange, value: string) =&gt; void;
+}&gt; = ({ snippet, onChange }) =&gt; (
+  &lt;CodeMirror
+    value={snippet || '{\n\n}'}
+    options={{
+      mode: 'application/json',
+      theme: 'dracula',
+      lineNumbers: true,
+      smartIndent: true,
+      tabSize: 2,
+      lint: true,
+      foldGutter: true,
+      gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter', 'CodeMirror-lint-markers'],
+    }}
+    editorDidMount={(editor, data) =&gt; {
+      // 格式化
+      editor.setValue(jsBeautify(data));
+    }}
+    onChange={onChange}
+  /&gt;
+);
+
+export default CodeSnnipet;
+
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/shi-yong-gg-editor-kai-fa-nao-tu-ying-yong/">
+                  <h3 class="post-title">
+                    使用 GG-Editor 开发脑图应用
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
           </div>
+
         </div>
       </div>
     </div>

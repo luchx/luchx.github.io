@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>开发Vue组件系列之模态框 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+开发Vue组件系列之模态框,主要有标题、内容、定时器、按钮文案、按钮事件回调、遮罩层这些可配置项。本次开发得组件是本系列的第一个组件,后期也会有更多系列教程推出。
+
+使用命令行安装或下载
+npm install lcxModal -S
+
+..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">开发Vue组件系列之模态框</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <blockquote>
+<p>开发Vue组件系列之模态框,主要有标题、内容、定时器、按钮文案、按钮事件回调、遮罩层这些可配置项。本次开发得组件是本系列的第一个组件,后期也会有更多系列教程推出。</p>
+</blockquote>
+<h3 id="使用命令行安装或下载">使用命令行安装或下载</h3>
+<pre><code class="language-bash">npm install lcxModal -S
+</code></pre>
+<h3 id="引入方式">引入方式</h3>
+<ul>
+<li>import lcxModal from 'lcxModal';</li>
+<li>const lcxModal = require('lcxModal');</li>
+<li>
+<script src="xxx/lcxModal.js"></script>
+</li>
+</ul>
+<h3 id="使用">使用</h3>
+<ul>
+<li>Vue.use(lcxModal);</li>
+<li>Vue.component('lcxModal', lcxModal);</li>
+</ul>
+<h3 id="项目结构">项目结构</h3>
+<pre><code class="language-bash">├── src                            # 项目源码。开发的时候代码写在这里。
+│   ├── lib                 # 组件目录
+|   |   |--lcxModal               # 模态框组件
+│   ├── App.vue                    # 项目根视图
+│   ├── main.js                    # 程序主入口
+</code></pre>
+<h3 id="部分截图">部分截图</h3>
+<figure data-type="image" tabindex="1"><img src="https://user-images.githubusercontent.com/17548394/68277313-e2a29400-00a9-11ea-9c99-0a5e86bab2a7.png" alt="image" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://user-images.githubusercontent.com/17548394/68277324-e6ceb180-00a9-11ea-8728-9b9a95466155.png" alt="image" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://user-images.githubusercontent.com/17548394/68277328-e9c9a200-00a9-11ea-8500-930768181c2e.png" alt="image" loading="lazy"></figure>
+<h3 id="modal组件模板">modal组件模板</h3>
+<blockquote>
+<p>使用 <code>transition</code> 可以为组件添加动效;对应的组件模板内容如下</p>
+</blockquote>
+<pre><code class="language-html">&lt;template&gt;
+  &lt;transition name=&quot;toggle&quot;&gt;
+    &lt;section class=&quot;modal&quot; v-show=&quot;visible&quot;&gt;
+      &lt;div class=&quot;modal-mask&quot; v-show=&quot;showMask&quot; @click=&quot;clickMask&quot;&gt;&lt;/div&gt;
+      &lt;section class=&quot;modal-content modal-center&quot; :style=&quot;contentStyle&quot;&gt;
+        &lt;header class=&quot;modal-header&quot; :class=&quot;{ 'modal-plain': plain }&quot; v-if=&quot;showHeader&quot;&gt;
+          &lt;slot name=&quot;header&quot;&gt;{{ title }}&lt;/slot&gt;
+          &lt;span class=&quot;closed&quot; v-if=&quot;showClose&quot; @click.stop=&quot;onClose&quot;&gt;
+            关闭
+          &lt;/span&gt;
+        &lt;/header&gt;
+        &lt;main class=&quot;modal-body&quot;&gt;
+          &lt;slot&gt;
+            &lt;div class=&quot;text-tips&quot;&gt;{{ text }}&lt;/div&gt;
+          &lt;/slot&gt;
+        &lt;/main&gt;
+        &lt;footer class=&quot;modal-footer&quot; v-if=&quot;showFooter&quot;&gt;
+          &lt;slot name=&quot;footer&quot;&gt;
+            &lt;button class=&quot;modal-btn modal-btn-primary&quot; @click.stop=&quot;onConfirm&quot;&gt;
+              {{ confirmBtnText }}
+            &lt;/button&gt;
+            &lt;button class=&quot;modal-btn modal-btn-default&quot; @click.stop=&quot;onClose&quot;&gt;
+              {{ cancelBtnText }}
+            &lt;/button&gt;
+          &lt;/slot&gt;
+        &lt;/footer&gt;
+      &lt;/section&gt;
+    &lt;/section&gt;
+  &lt;/transition&gt;
+&lt;/template&gt;
+</code></pre>
+<h3 id="添加组件属性及操作方法">添加组件属性及操作方法</h3>
+<blockquote>
+<p>添加组件的属性,其中<code>duration</code>属性如果设定的数值小于10,则会乘以1000;否则按传递的数值计算</p>
+</blockquote>
+<pre><code class="language-js">&lt;script&gt;
+  export default {
+    name: &quot;EchiModal&quot;,
+    props: {
+      visible: {
+        type: Boolean,
+        default: false
+      },
+      title: {
+        type: String,
+        default: &quot;标题&quot;
+      },
+      text: {
+        type: String,
+        default: &quot;提示信息&quot;
+      },
+      tinyBar: {
+        type: Boolean,
+        default: false
+      },
+      confirmBtnText: {
+        type: String,
+        default: &quot;确定&quot;
+      },
+      cancelBtnText: {
+        type: String,
+        default: &quot;返回&quot;
+      },
+      contentStyle: {
+        type: Object,
+        default: () =&gt; {}
+      },
+      showClose: {
+        type: Boolean,
+        default: true
+      },
+      plain: {
+        type: Boolean,
+        default: false
+      },
+      showHeader: {
+        type: Boolean,
+        default: true
+      },
+      showFooter: {
+        type: Boolean,
+        default: true
+      },
+      showMask: {
+        type: Boolean,
+        default: true
+      },
+      onMask: {
+        type: Boolean,
+        default: false
+      },
+      duration: {
+        type: Number,
+        default: 0
+      }
+    },
+    watch: {
+      visible(nv) {
+        if (nv) {
+          this.closeTimerHandle()
+        }
+      }
+    },
+    data() {
+      return {
+        closeTimer: null,
+      }
+    },
+    methods: {
+      onClose() {
+        this.$emit(&quot;on-close&quot;);
+        this.hide();
+      },
+      onConfirm() {
+        this.$emit(&quot;on-confirm&quot;);
+      },
+      hide() {
+        this.$emit(&quot;update:visible&quot;, false);
+        this.$emit(&quot;on-closed&quot;);
+        clearTimeout(this.closeTimer);
+        this.closeTimer = null;
+      },
+      clickMask() {
+        if (this.onMask &amp;&amp; this.showMask) {
+          this.hide();
+        }
+      },
+      closeTimerHandle() {
+        try {
+          if (this.duration &lt;= 0) {
+            return;
+          }
+          const duration = (this.duration &lt; 10) ? (this.duration * 1000) : this.duration;
+          clearTimeout(this.closeTimer);
+          this.closeTimer = setTimeout(() =&gt; {
+            this.onClose();
+          }, duration);
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+  };
+&lt;/script&gt;
+</code></pre>
+<h3 id="添加样式声明">添加样式声明</h3>
+<pre><code class="language-css">&lt;style scoped lang=&quot;scss&quot;&gt;
+  *,
+  :after,
+  :before {
+    box-sizing: border-box;
+    outline: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+
+  $color-tips: #1ab394;
+  $color-text: rgba(255, 255, 255, 0.6);
+  $color-info: #ff9900;
+  $color-default: #ccc;
+
+  .modal {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+
+    .modal-mask {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 360px;
+      box-shadow: 0 1px 8px 0 rgba(0, 30, 24, 0.05);
+      background-color: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 44px;
+      font-size: 18px;
+      padding: 0 20px;
+      font-weight: 500;
+      color: #fff;
+      background-color: $color-tips;
+      z-index: 9999;
+
+      .closed {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        font-size: 12px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #fff;
+        transform: translateY(-50%);
+      }
+
+      &amp;.modal-plain {
+        background-color: rgba(245,
+          245,
+          245,
+          1);
+        color: $color-tips;
+
+        .closed {
+          color: $color-info;
+        }
+      }
+    }
+
+    .modal-body {
+      display: block;
+      flex: 1;
+      background-color: #fff;
+      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-footer {
+      display: block;
+      width: 100%;
+      padding: 20px 30px;
+      text-align: center;
+      background-color: #fff;
+
+      .modal-btn {
+        width: 80px;
+
+        +.modal-btn {
+          margin-left: 8px;
+        }
+      }
+    }
+  }
+
+  .text-tips {
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+    color: #333;
+    padding: 40px 60px;
+  }
+
+  .modal-btn {
+    display: inline-flex;
+    padding: 0 12;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 400;
+    height: 32px;
+    text-align: center;
+    white-space: nowrap;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    user-select: none;
+    background-image: none;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all .3s ease;
+
+    &amp;:link,
+    &amp;:visited,
+    &amp;:hover,
+    &amp;:active {
+      text-decoration: none;
+    }
+  }
+
+  .modal-btn-default {
+    background-color: $color-default;
+    color: #fff;
+
+    &amp;:link {
+      color: #fff;
+      background-color: $color-default;
+    }
+
+    &amp;:visited {
+      color: #fff;
+      background-color: $color-default;
+    }
+
+    &amp;:hover {
+      color: #fff;
+      background-color: rgba(170, 170, 170, .85);
+    }
+
+    &amp;:active {
+      color: #fff;
+      background-color: $color-default;
+    }
+
+    &amp;[plain] {
+      background-color: #fff;
+      color: $color-default;
+      border: 1px solid $color-default;
+    }
+  }
+
+  .modal-btn-primary {
+    background-color: $color-tips;
+    color: #fff;
+
+    &amp;:link {
+      color: #fff;
+      background-color: $color-tips;
+    }
+
+    &amp;:visited {
+      color: #fff;
+      background-color: $color-tips;
+    }
+
+    &amp;:hover {
+      color: #fff;
+      background-color: rgba(26, 179, 148, 0.85);
+    }
+
+    &amp;:active {
+      color: #fff;
+      background-color: $color-tips;
+    }
+
+    &amp;[plain] {
+      background-color: #fff;
+      color: $color-tips;
+      border: 1px solid $color-tips;
+    }
+  }
+
+  .toggle-enter,
+  .toggle-leave-active {
+    opacity: 0;
+    transform: translatey(-10px);
+  }
+
+  .toggle-enter-active,
+  .toggle-leave-active {
+    transition: all ease .2s;
+  }
+&lt;/style&gt;
+</code></pre>
+<h3 id="使用-2">使用</h3>
+<pre><code class="language-html">&lt;template&gt;
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;img alt=&quot;Vue logo&quot; src=&quot;./assets/logo.png&quot; /&gt;
+    &lt;div&gt;
+      &lt;button @click.stop=&quot;showModel_0 = true&quot;&gt;
+        显示默认样式
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_1 = true&quot;&gt;
+        显示素样式
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_2 = true&quot;&gt;
+        修改提示语
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_3 = true&quot;&gt;
+        自定义内容
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_4 = true&quot;&gt;
+        去除Footer
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_5 = true&quot;&gt;
+        去除Header
+      &lt;/button&gt;
+      &lt;button @click.stop=&quot;showModel_6 = true&quot;&gt;
+        设置3秒后自动关闭
+      &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_0&quot; title=&quot;显示默认样式&quot;&gt;&lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_1&quot; title=&quot;显示素样式&quot; plain&gt;&lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_2&quot; title=&quot;修改提示语&quot; text=&quot;哈哈哈哈哈,我把提示信息修改了&quot;&gt;&lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_3&quot; title=&quot;自定义内容&quot; :contentStyle=&quot;{width: '600px'}&quot;&gt;
+      &lt;img alt=&quot;Vue logo&quot; src=&quot;./assets/logo.png&quot; /&gt;
+    &lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_4&quot; title=&quot;去除Footer&quot; :showFooter=&quot;false&quot;&gt;&lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_5&quot; title=&quot;去除Header&quot; :showHeader=&quot;false&quot;&gt;&lt;/EchiModal&gt;
+    &lt;EchiModal :visible.sync=&quot;showModel_6&quot; title=&quot;设置3秒后自动关闭&quot; :duration=&quot;3&quot;&gt;&lt;/EchiModal&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+  import EchiModal from &quot;./components/EchiModal.vue&quot;;
+
+  export default {
+    name: &quot;app&quot;,
+    components: {
+      EchiModal
+    },
+    data() {
+      return {
+        showModel_0: false,
+        showModel_1: false,
+        showModel_2: false,
+        showModel_3: false,
+        showModel_4: false,
+        showModel_5: false,
+        showModel_6: false,
+      }
+    }
+  };
+&lt;/script&gt;
+</code></pre>
+<blockquote>
+<p>感谢那您的观看,以上就是我为大家带来的模态框组件,本文同步更新于我的github<a href="https://github.com/luchx/echi-modal">点击前往</a>。如果对您有帮助,请为我点个小星星</p>
+</blockquote>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/yi-dao-qian-duan-mian-shi-ti-yin-fa-de-si-kao/">
+                  <h3 class="post-title">
+                    一道前端面试题引发的思考
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>关于vue-cli 3配置打包优化要点 | Echi 的小笔记</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296423826">
+<link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="关于vue-cli 3配置打包优化要点
+首先说下我目前已经做的优化点,本文是在此基础上做的进一步优化:
+
+配置路由懒加载,封装了异步组件引入的方法,接收一个地址做参数
+
+/**
+ *  返回异步组件
+ * @tips 请注意页面只能挂载在v..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://luchx.github.io">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592296423826" class="site-logo">
+        <h1 class="site-title">Echi 的小笔记</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/luchx" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      姿态低人一等 心态高人一等
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/luchx" target="_blank">Echi</a> | <a class="rss" href="https://luchx.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">关于vue-cli 3配置打包优化要点</h2>
+            <div class="post-date">2020-06-16</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="关于vue-cli-3配置打包优化要点">关于vue-cli 3配置打包优化要点</h2>
+<p>首先说下我目前已经做的优化点,本文是在此基础上做的进一步优化:</p>
+<ul>
+<li>配置路由懒加载,封装了异步组件引入的方法,接收一个地址做参数</li>
+</ul>
+<pre><code class="language-js">/**
+ *  返回异步组件
+ * @tips 请注意页面只能挂载在views文件下,非此路径请勿使用
+ */
+const AsyncComponentHook = (path: String): Function =&gt; (): any =&gt; {
+    // 通过 webpack 的内联注释,设置模块名
+    let component = import(/* webpackChunkName: &quot;view-[request]&quot; */ `@/views/${path}.vue`);
+    component.catch((e) =&gt; {
+        console.error(e);
+    });
+    return component;
+};
+</code></pre>
+<ul>
+<li>配置代码压缩</li>
+</ul>
+<pre><code class="language-js">    // 安装
+    npm install uglifyjs-webpack-plugin
+
+    // 在vue.config.js文件中添加配置
+    configureWebpack: config =&gt; {
+        if (process.env.NODE_ENV === 'production') {
+            // 为生产环境修改配置...
+            config.plugins.push(
+                //生产环境自动删除console
+                new UglifyJsPlugin({
+                    uglifyOptions: {
+                        compress: {
+                            warnings: false,
+                            drop_debugger: true,
+                            drop_console: true,
+                        },
+                    },
+                    sourceMap: false,
+                    parallel: true,
+                })
+            );
+        }
+    },
+
+</code></pre>
+<ul>
+<li>
+<p>配置引用别名</p>
+</li>
+<li>
+<p>设置插件的按需引入,本文使用的是<code>element-ui</code>，<a href="https://element.eleme.cn/#/zh-CN/component/quickstart">点击查看详情</a></p>
+</li>
+</ul>
+<p>...</p>
+<blockquote>
+<p>经过一些基础的配置后,我们来看下目前打包后的效果。</p>
+</blockquote>
+<p>从下图可以看到,打包出来后最大的包有<code>1.33M</code>。然后再看下请求,哇,<code>217</code>个请求、首页下载需要<code>3.2M</code>。</p>
+<p><img src="https://user-images.githubusercontent.com/17548394/68277784-e387f580-00aa-11ea-9ae7-e74f83a779dc.png" alt="analyze-unoptimize" loading="lazy"><br>
+<img src="https://user-images.githubusercontent.com/17548394/68277792-e71b7c80-00aa-11ea-8d2e-a531f959e65e.png" alt="unoptimize" loading="lazy"></p>
+<p>...</p>
+<p>好吧，开始折腾</p>
+<h3 id="1-优化scss配置文件的引入">1. 优化scss配置文件的引入</h3>
+<p>我们在搭建项目的过程中经常性的会将一些scss配置文件抽离出来，例如主题色等，然后在每个需要的组件中引入。这样会显得很繁琐，我们可以借助sass-loader帮我们进行预处理，<br>
+这样我们就不用在每一个页面都进行引入样式，就能直接引用。</p>
+<blockquote>
+<p>例如我们的样式文件目录下有一个theme.scss，我们可以在<code>vue.config.js</code>中作如下处理</p>
+</blockquote>
+<pre><code class="language-js">// vue.config.js 配置
+module.exports = {
+  css: {
+    // css预设器配置项
+    loaderOptions: {
+        // pass options to sass-loader
+        sass: {
+            // 引入全局变量样式,@使我们设置的别名,执行src目录
+            data: `
+                @import &quot;@/stylePath/theme.scss&quot;;
+            `
+        }
+    },
+  },
+}
+</code></pre>
+<blockquote>
+<p>通过以上配置,就可以在组件模板中注释以下代码</p>
+</blockquote>
+<pre><code class="language-css">&lt;style lang=&quot;scss&quot;&gt;
+   /* @import &quot;@/stylePath/theme.scss&quot;; */
+&lt;/style&gt;
+</code></pre>
+<h3 id="2-针对请求数进行优化">2. 针对请求数进行优化</h3>
+<p>我们发现请求数增多是因为我们页面预先渲染了其它组件，会在html页面中插入像这样的东西<code>&lt;link rel=&quot;prefetch&quot;&gt;</code>，这该怎么优化呢？</p>
+<blockquote>
+<p>首先我们先看下<code>vue.config.js</code>的官方文档，<a href="https://cli.vuejs.org/zh/guide/html-and-static-assets.html#prefetch">点击前往</a>。<br>
+官方说明： <link rel="prefetch"> 是一种 resource hint，用来告诉浏览器在页面加载完成后，利用空闲时间提前获取用户未来可能会访问的内容。</p>
+</blockquote>
+<p>所以我们添加如下配置</p>
+<pre><code class="language-js">// vue.config.js
+module.exports = {
+  chainWebpack: config =&gt; {
+    // 移除 prefetch 插件
+    config.plugins.delete('prefetch')
+    // 移除 preload 插件
+    config.plugins.delete('preload');
+  }
+}
+</code></pre>
+<h3 id="3-公用代码提取使用cdn加载">3. 公用代码提取，使用cdn加载</h3>
+<p>对于<code>vue</code>, <code>vuex</code>, <code>vue-router</code>，<code>axios</code>等我们可以利用<code>wenpack</code>的<code>externals</code>参数来配置，这里我们设定只需要在生产环境中才需要使用:</p>
+<pre><code class="language-js">// vue.config.js
+const isProduction = process.env.NODE_ENV === 'production';
+const cdn = {
+    css: [],
+    js: [
+        'https://cdn.bootcss.com/vue/2.5.17/vue.runtime.min.js',
+        'https://cdn.bootcss.com/vue-router/3.0.1/vue-router.min.js',
+        'https://cdn.bootcss.com/vuex/3.0.1/vuex.min.js',
+        'https://cdn.bootcss.com/axios/0.18.0/axios.min.js',
+    ]
+}
+module.exports = {
+    chainWebpack: config =&gt; {
+        // 生产环境配置
+        if (isProduction) {
+            // 生产环境注入cdn
+            config.plugin('html')
+                .tap(args =&gt; {
+                    args[0].cdn = cdn;
+                    return args;
+                });
+        }
+    },
+    configureWebpack: config =&gt; {
+        if (isProduction) {
+            // 用cdn方式引入
+            config.externals = {
+                'vue': 'Vue',
+                'vuex': 'Vuex',
+                'vue-router': 'VueRouter',
+                'axios': 'axios'
+            }
+        }
+    },
+}
+</code></pre>
+<p>接着修改<code>html</code>文件，添加注入代码</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh&quot;&gt;
+
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1.0&quot;&gt;
+  &lt;!-- 使用CDN的CSS文件 --&gt;
+  &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp; htmlWebpackPlugin.options.cdn.css) { %&gt;
+    &lt;link href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.css[i] %&gt;&quot; rel=&quot;preload&quot; as=&quot;style&quot;&gt;
+    &lt;link href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.css[i] %&gt;&quot; rel=&quot;stylesheet&quot;&gt;
+  &lt;% } %&gt;
+  &lt;!-- 使用CDN的JS文件 --&gt;
+  &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp; htmlWebpackPlugin.options.cdn.js) { %&gt;
+    &lt;link href=&quot;&lt;%= htmlWebpackPlugin.options.cdn.js[i] %&gt;&quot; rel=&quot;preload&quot; as=&quot;script&quot;&gt;
+  &lt;% } %&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;noscript&gt;
+    &lt;strong&gt;We're sorry but eye-admin doesn't work properly without JavaScript enabled. Please enable it to continue.&lt;/strong&gt;
+  &lt;/noscript&gt;
+  &lt;div id=&quot;app&quot;&gt;&lt;/div&gt;
+  &lt;!-- built files will be auto injected --&gt;
+  &lt;% for (var i in htmlWebpackPlugin.options.cdn &amp;&amp; htmlWebpackPlugin.options.cdn.js) { %&gt;
+    &lt;script src=&quot;&lt;%= htmlWebpackPlugin.options.cdn.js[i] %&gt;&quot;&gt;&lt;/script&gt;
+  &lt;% } %&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>然后打包重启，我们再来看下目前的变化。</p>
+<p>嗯，真香~从下图可以看到,打包出来后最大的包文件只有<code>775kb</code>。然后再看下请求,哇,<code>43</code>个请求、首页下载只需要<code>1.4M</code>。</p>
+<p>可以看出，我们这一系列的操作后请求数减少了<code>174</code>个，首页渲染减少了<code>1.8m</code>,真是可喜可贺</p>
+<p><img src="https://user-images.githubusercontent.com/17548394/68277858-1205d080-00ab-11ea-94c4-803f4192fd35.png" alt="analyze-optimize" loading="lazy"><br>
+<img src="https://user-images.githubusercontent.com/17548394/68277863-1631ee00-00ab-11ea-9809-e8af6edf50c9.png" alt="optimize" loading="lazy"></p>
+<p>最后，附上完整的<code>vue-config.js</code>文件</p>
+<pre><code class="language-js">const path = require(&quot;path&quot;);
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+const isProduction = process.env.NODE_ENV === 'production';
+const cdn = {
+    css: [],
+    js: [
+        'https://cdn.bootcss.com/vue/2.5.17/vue.runtime.min.js',
+        'https://cdn.bootcss.com/vue-router/3.0.1/vue-router.min.js',
+        'https://cdn.bootcss.com/vuex/3.0.1/vuex.min.js',
+        'https://cdn.bootcss.com/axios/0.18.0/axios.min.js',
+    ]
+}
+
+function resolve(dir) {
+    return path.join(__dirname, dir)
+}
+
+module.exports = {
+    // 基本路径
+    baseUrl: './',
+    // 输出文件目录
+    outputDir: 'dist',
+    // 放置生成的静态资源 (js、css、img、fonts) 的 (相对于 outputDir 的) 目录。
+    // assetsDir: &quot;./&quot;,
+    // 指定生成的 index.html 的输出路径 (相对于 outputDir)。也可以是一个绝对路径
+    indexPath: './',
+    // eslint-loader 是否在保存的时候检查
+    lintOnSave: true,
+    // webpack配置
+    // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
+    chainWebpack: config =&gt; {
+        config
+            .entry('index')
+            .add('babel-polyfill')
+            .end();
+        // 配置别名
+        config.resolve.alias
+            .set(&quot;@&quot;, resolve(&quot;src&quot;))
+            .set(&quot;@img&quot;, resolve(&quot;src/assets/images&quot;))
+            .set(&quot;@css&quot;, resolve(&quot;src/assets/styles/css&quot;))
+            .set(&quot;@scss&quot;, resolve(&quot;src/assets/styles/scss&quot;));
+        // 生产环境配置
+        if (isProduction) {
+            // 删除预加载
+            config.plugins.delete('preload');
+            config.plugins.delete('prefetch');
+            // 压缩代码
+            config.optimization.minimize(true);
+            // 分割代码
+            config.optimization.splitChunks({
+                chunks: 'all'
+            })
+            // 生产环境注入cdn
+            config.plugin('html')
+                .tap(args =&gt; {
+                    args[0].cdn = cdn;
+                    return args;
+                });
+        }
+    },
+    configureWebpack: config =&gt; {
+        if (isProduction) {
+            // 用cdn方式引入
+            config.externals = {
+                'vue': 'Vue',
+                'vuex': 'Vuex',
+                'vue-router': 'VueRouter',
+                'axios': 'axios'
+            }
+            // 为生产环境修改配置...
+            config.plugins.push(
+                //生产环境自动删除console
+                new UglifyJsPlugin({
+                    uglifyOptions: {
+                        compress: {
+                            warnings: false,
+                            drop_debugger: true,
+                            drop_console: true,
+                        },
+                    },
+                    sourceMap: false,
+                    parallel: true,
+                })
+            );
+        } else {
+            // 为开发环境修改配置...
+        }
+    },
+    // 生产环境是否生成 sourceMap 文件
+    productionSourceMap: false,
+    // css相关配置
+    css: {
+        // 是否使用css分离插件 ExtractTextPlugin
+        extract: true,
+        // 开启 CSS source maps?
+        sourceMap: false,
+        // css预设器配置项
+        loaderOptions: {
+            // pass options to sass-loader
+            sass: {
+                // 引入全局变量样式
+                data: `
+                    @import &quot;@/stylePath/theme.scss;
+                `
+            }
+        },
+        // 启用 CSS modules for all css / pre-processor files.
+        modules: false,
+    },
+    // use thread-loader for babel &amp; TS in production build
+    // enabled by default if the machine has more than 1 cores
+    parallel: require('os').cpus().length &gt; 1,
+    devServer: {
+        port: 8888,  // 端口
+        open: true, // 自动开启浏览器
+        compress: false, // 开启压缩
+        overlay: {
+            warnings: true,
+            errors: true
+        }
+    },
+}
+</code></pre>
+<p>以上就是我针对打包后做的优化处理，当然还有其它优化点，比如开启<code>gzip</code>压缩，不过这个需要后台服务器支持，所以暂不配置。如果你还有其它优化点，欢迎一起讨论！</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://luchx.github.io/post/kai-fa-vue-zu-jian-xi-lie-zhi-mo-tai-kuang/">
+                  <h3 class="post-title">
+                    开发Vue组件系列之模态框
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>Vue-cli 3.0 配置iview | Echi 的小笔记</title>
+<title>一道前端面试题引发的思考 | Echi 的小笔记</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,11 +18,12 @@
 
 
 
-    <meta name="description" content="(一) iview 配置自定义主题
-按照iview官网配置会出现如下错误
+    <meta name="description" content="
+最近在看前端面试题的过程中,发现在stackoverflow上有这么一道题,题目大概是这样的:
 
-    Module build failed (from ./node_modules/less-loader/dist/cjs.js):
-    // http..." />
+// 请在问号处填写你的答案,使下方等式成立
+let a = ?;
+if(a == 1 &amp;&amp; a == 2 &amp;&am..." />
     <meta name="keywords" content="" />
   </head>
   <body>
@@ -98,72 +99,68 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">Vue-cli 3.0 配置iview</h2>
+            <h2 class="post-title">一道前端面试题引发的思考</h2>
             <div class="post-date">2020-06-16</div>
             
             <div class="post-content" v-pre>
-              <h3 id="一-iview-配置自定义主题">(一) iview 配置自定义主题</h3>
-<p>按照<a href="https://www.iviewui.com/">iview官网</a>配置会出现如下错误</p>
-<pre><code class="language-js">
-    Module build failed (from ./node_modules/less-loader/dist/cjs.js):
-    // https://github.com/ant-design/ant-motion/issues/44
-    .bezierEasingMixin();
-    ^
-    Inline JavaScript is not enabled. Is it set in your options?
-    in /el-admin/node_modules/iview/src/styles/color/bezierEasing.less (line 111, column 0)
-
+              <blockquote>
+<p>最近在看前端面试题的过程中,发现在<code>stackoverflow</code>上有这么一道题,题目大概是这样的:</p>
+</blockquote>
+<pre><code class="language-js">// 请在问号处填写你的答案,使下方等式成立
+let a = ?;
+if(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) {
+    console.log(&quot;Hi, I'm Echi&quot;);
+}
 </code></pre>
-<p>上述错误需要将less的javascriptEnabled设置为true，接下来我们在vue-cli3中中进行配置</p>
-<p>配置如下：</p>
-<ol>
-<li>
-<p>iview创建自定义主题样式文件，可以参考官网的案例 <a href="https://www.iviewui.com/docs/guide/theme">查看</a></p>
-</li>
-<li>
-<p>配置vue.config.js文件</p>
-</li>
-</ol>
-<pre><code class="language-js">
-    module.exports = {
-        css: { // 配置css模块
-            loaderOptions: { // 向预处理器 Loader 传递配置选项
-                less: { // 配置less（其他样式解析用法一致）
-                        javascriptEnabled: true // 设置为true
-                }
-            }
-        }
+<p>一看到这道题,相信大多数人心目中就已经最少有两种实现方案了。我们知道当一个对象在转换为基本类型时，首先它会先调用 <code>valueOf</code> 然后调用 <code>toString</code>, 所以我们尝试着改写这两种方法。</p>
+<p>(一) 使用<code>valueOf</code>实现</p>
+<pre><code class="language-js">let a = {
+    i: 1,
+    valueOf() {
+        return a.i++;
     }
-
+};
+if(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) {
+    console.log(&quot;Hi, I'm Echi&quot;);
+}
 </code></pre>
-<p>以上的配置你也可以参考VueCli文档 <a href="https://www.iviewui.com/docs/guide/theme">查看</a></p>
-<p>通过以上的配置，就可以解决iview的自定义主题的错误问题。</p>
-<h3 id="二-iview-配置按需引入组件">(二) iview 配置按需引入组件</h3>
-<p>按照iview官网提供的配置进行按需引入会在IE下报错</p>
-<p>解决方法: (适用于vue-cli3 构建的项目)</p>
-<p>在项目根目录创建vue.config.js 写入如下配置：</p>
-<pre><code class="language-js">
-    module.exports = { 
-        chainWebpack: config =&gt; { 
-            // ie报错无效字符 添加该配置项 解决该问题 
-            config.module
-                .rule('iview') 
-                .test(/iview.src.*?js$/) 
-                .use('babel') 
-                .loader('babel-loader') 
-                .end() 
-            } 
+<p>(二) 使用<code>toString</code>实现</p>
+<pre><code class="language-js">let a = {
+    i: 1,
+    toString() {
+        return a.i++;
     }
-
+};
+if(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) {
+    console.log(&quot;Hi, I'm Echi&quot;);
+}
 </code></pre>
+<p>接下来我们来看对象的<code>Symbol.toPrimitive</code>属性,该属性会指向一个方法。当对象被转化为原始类型的值时，会调用这个办法，返回该对象对应的原始类型值,且该方法在转基本类型时调用优先级最高。所以我们就有了第三种方案:</p>
+<p>(三) 使用<code>Symbol.toPrimitive</code>实现</p>
+<pre><code class="language-js">let a = {
+    i: 1,
+    [Symbol.toPrimitive]() {
+        return a.i++;
+    }
+};
+if(a == 1 &amp;&amp; a == 2 &amp;&amp; a == 3) {
+    console.log(&quot;Hi, I'm Echi&quot;);
+}
+</code></pre>
+<p>好了,以上就是我对这道题的解题方案,主要还是利用了<code>==</code>对变量类型的隐式转换,当然大家可能还有其他解题方案。比如说可以使用<code>es5</code>的<code>Object.defineProperty</code>,或者<code>es6</code>的<code>Proxy</code>,这里我就不写出来了;</p>
+<p>最后问大家一句,如果将题目中的<code>==</code>换成<code>===</code>,效果还是一样的吗,为什么?欢迎大家留言讨论</p>
+<blockquote>
+<p>更多详情,请自行查看 <a href="https://stackoverflow.com/questions/48270127/can-a-1-a-2-a-3-ever-evaluate-to-true">stackoverflow</a>;</p>
+</blockquote>
 
             </div>
             
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://luchx.github.io/post/vue-cli-30-ji-chu-xiang-mu-gong-cheng-mo-ban/">
+                <a href="https://luchx.github.io/post/vue-cli-30-pei-zhi-iview/">
                   <h3 class="post-title">
-                    Vue-cli 3.0基础项目工程模板
+                    Vue-cli 3.0 配置iview
                   </h3>
                 </a>
               </div>
