@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592296670747">
+<link rel="shortcut icon" href="https://luchx.github.io/favicon.ico?v=1592361719180">
 <link rel="stylesheet" href="https://luchx.github.io/styles/main.css">
 
 
@@ -21,7 +21,7 @@
     <meta name="description" content="使用 Vue 实现购物车 SKU 选择
 
 做过商城项目的对于 SKU 来说应该不会陌生，那么前端如何实现 SKU 的动态匹配呢？相信对于第一次做商城项目的小伙伴们来说应该是很费解吧，因为涉及到商品库存、价格、和规格属性等问题。下面就由我来为..." />
-    <meta name="keywords" content="" />
+    <meta name="keywords" content="Vue,手写代码" />
   </head>
   <body>
     <div id="app" class="main">
@@ -30,7 +30,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://luchx.github.io">
-        <img src="https://luchx.github.io/images/avatar.png?v=1592296670747" class="site-logo">
+        <img src="https://luchx.github.io/images/avatar.png?v=1592361719180" class="site-logo">
         <h1 class="site-title">Echi 的小笔记</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -334,7 +334,75 @@
 <blockquote>
 <p>当我们拿到这样一份数据我们需要先进行数据格式化，并输出形成以下数据：</p>
 </blockquote>
+<pre><code class="language-javascript">// 在 computed 中对数据进行输出，并得到三分数据：
+// attrGroupList
+// existSkuIdKey
+// attrSameKey
+
+skuListMap() {
+  const { sku_list } = this.dataSource;
+  // 属性组数据
+  const attributeGroupList = {};
+  // 属性 sku_id 组
+  const existSkuIdKey = {};
+  // 同属性组
+  const attrSameKey = {};
+  (sku_list || []).forEach(list =&gt; {
+    const { sku_prop } = list;
+    // 获取属性组的 attribute_value_id，排序后用 | 分割
+    const attrsIdKeys = (sku_prop || [])
+      .map(item =&gt; item.attribute_value_id)
+      .sort((a, b) =&gt; a - b)
+      .join(&quot;|&quot;);
+
+    existSkuIdKey[attrsIdKeys] = list;
+
+    (sku_prop || []).forEach(prop =&gt; {
+      const valueInfo = {
+        attribute_value_id: prop.attribute_value_id,
+        attribute_value: prop.attribute_value
+      };
+      const hasAttrId = attributeGroupList[prop.attribute_id];
+      // 属性组里不存在则新增
+      if (hasAttrId === undefined) {
+        attributeGroupList[prop.attribute_id] = {
+          ...prop,
+          valueList: []
+        };
+        attrSameKey[prop.attribute_id] = [];
+      }
+      // 属性列表
+      const existList = attributeGroupList[prop.attribute_id].valueList;
+      // 判断 attribute_value_id 是否已存在属性组, 防止同一 attribute_value_id 多次添加
+      const hasExistAttrId = existList.some(
+        item =&gt; item.attribute_value_id === prop.attribute_value_id
+      );
+      if (!hasExistAttrId) {
+        Array.prototype.push.call(
+          attributeGroupList[prop.attribute_id].valueList,
+          valueInfo
+        );
+        Array.prototype.push.call(
+          attrSameKey[prop.attribute_id],
+          prop.attribute_value_id
+        );
+      }
+    });
+  });
+
+  const attrGroupList = Object.values(attributeGroupList);
+
+  return {
+    attrGroupList,
+    existSkuIdKey,
+    attrSameKey
+  };
+}
+</code></pre>
 <h3 id="1-定义一个数组存储规格列表展示的数据attrgrouplist">1. 定义一个数组存储规格列表展示的数据：attrGroupList</h3>
+<blockquote>
+<p>根据后端返回的数据进行格式化，并输出以下格式，用于渲染规格列表</p>
+</blockquote>
 <pre><code class="language-javascript">[
   {
     attribute_id: 58,
@@ -461,17 +529,140 @@
   }
 }
 </code></pre>
-<h2 id="三-代码实现">三、代码实现</h2>
+<h2 id="三-sku-禁用判断">三、SKU 禁用判断</h2>
+<blockquote>
+<p>禁用规则说明：</p>
+<ol>
+<li>存在选项且小于可选项，不满足匹配规则</li>
+<li>存在同组数据，且选项未选完</li>
+<li>不在存在 sku 中</li>
+</ol>
+</blockquote>
+<pre><code class="language-javascript">// 在 methods 中定义一个方法，接受一个 attribute_value_id 进行判断，并返回 Boolean
+
+disabledKey(attribute_value_id) {
+  const attrSameKey = Object.values(this.skuListMap.attrSameKey);
+  const selectKeys = Object.values(this.activeKey);
+  const validLen = this.skuListMap.attrGroupList.length;
+  // 存在选项且小于可选项，不满足匹配规则，直接返回 false
+  if (selectKeys.length &lt; validLen - 1) {
+    return false;
+  }
+  // 获取选项中属于同组的数据
+  const filterSameKey = attrSameKey.filter(arr =&gt; {
+    return selectKeys.find(key =&gt; arr.includes(key));
+  });
+
+  // 获取同一属性组数据
+  const sameGroupKey = filterSameKey.filter(arr =&gt;
+    arr.includes(attribute_value_id)
+  );
+
+  // 存在同组数据，且选项未选完
+  if (selectKeys.length !== validLen &amp;&amp; sameGroupKey.length) {
+    return false;
+  }
+
+  // 取出 attribute_value_id
+  const { existSkuIdKey } = this.skuListMap;
+  // 去除与当前 attribute_value_id 匹配的同组数据
+  const aloneKeys = selectKeys.filter(key =&gt; {
+    return !sameGroupKey.some(sameKeys =&gt; sameKeys.includes(key));
+  });
+  const selectSkuGroup = [...aloneKeys, attribute_value_id];
+  const skuKeyGroup = selectSkuGroup.sort((a, b) =&gt; a - b).join(&quot;|&quot;);
+  // 判断是否存在 SKU 组中
+  const hasInSku = Reflect.has(existSkuIdKey, skuKeyGroup);
+
+  // 不在存在 sku 中
+  return !hasInSku;
+}
+</code></pre>
+<h2 id="四-判断购物车选项状态并返回选中结果">四、判断购物车选项状态，并返回选中结果</h2>
+<pre><code class="language-javascript">validateCartStatus() {
+  const { material_id, sku_list } = this.dataSource;
+  const cartNumber = this.cartNumber;
+  if (typeof cartNumber !== &quot;number&quot; || cartNumber &lt; 1) {
+    return {
+      status: false,
+      params: {}
+    };
+  }
+
+  if (!sku_list || sku_list.length === 0) {
+    // TODO: 未定义场景（异常）
+    return {
+      status: false,
+      params: {}
+    };
+  }
+
+  const firstSku = sku_list[0];
+  // 如果只存在一条 sku 记录，则默认选取
+  if (sku_list.length === 1 &amp;&amp; (firstSku.sku_prop || []).length === 0) {
+    return {
+      status: true,
+      item: firstSku,
+      params: {
+        material_id,
+        sku_id: firstSku.sku_id,
+        quantity: cartNumber
+      }
+    };
+  }
+
+  // 当前选中的 sku 属性
+  const activeKey = this.activeKey;
+  const { existSkuIdKey } = this.skuListMap;
+  // 取出当前选中的 sku 组
+  const selectSkuGroup = Object.values(activeKey);
+
+  const skuKeyGroup = selectSkuGroup.sort((a, b) =&gt; a - b).join(&quot;|&quot;);
+  // 获取当前 sku_id 对应的属性组
+  const findSkuItem = Reflect.get(existSkuIdKey, skuKeyGroup);
+
+  const selectActiveKeys = Object.keys(activeKey);
+  if (!findSkuItem || selectActiveKeys.length === 0) {
+    return {
+      status: false,
+      params: {}
+    };
+  }
+
+  return {
+    status: true,
+    item: findSkuItem,
+    params: {
+      material_id,
+      sku_id: findSkuItem.sku_id,
+      quantity: cartNumber
+    }
+  };
+}
+</code></pre>
+<h2 id="五-代码实现">五、代码实现</h2>
 <blockquote>
 <p>具体代码实现请前往 <a href="https://github.com/luchx/VUE_CART_SKU">github 查看</a>，或点击下方图标查看</p>
 </blockquote>
-<figure data-type="image" tabindex="1"><a href="https://codesandbox.io/s/vue-cart-sku-299nt?fontsize=14&amp;hidenavigation=1&amp;theme=dark"><img src="https://cdn.nlark.com/yuque/0/2020/svg/373912/1591508056037-fc5b8a9d-5c64-4f24-ad74-1d6c8ffeae8b.svg#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;size=0&amp;status=done&amp;style=none&amp;width=201#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;status=done&amp;style=none&amp;width=201" alt="sandbox.svg" loading="lazy"></a></figure>
-<h2 id="四-最终效果">四、最终效果</h2>
-<p><img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591506721696-3abb7a89-f569-445a-a84d-889e432a06d8.png#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=696&amp;originWidth=401&amp;size=52490&amp;status=done&amp;style=none&amp;width=401#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;originHeight=696&amp;originWidth=401&amp;status=done&amp;style=none&amp;width=401" alt="image.png" loading="lazy"><br>
-<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507235477-0333b109-9b1c-4f1c-9f78-96d69552ee1b.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=395&amp;size=62118&amp;status=done&amp;style=none&amp;width=395#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=395&amp;status=done&amp;style=none&amp;width=395" alt="image.png" loading="lazy"><br>
-<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507849846-bfa08971-6213-4fd5-b865-abf37404756a.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=399&amp;size=37091&amp;status=done&amp;style=none&amp;width=399#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=399&amp;status=done&amp;style=none&amp;width=399" alt="image.png" loading="lazy"></p>
+<figure data-type="image" tabindex="1"><a href="https://codesandbox.io/s/vue-cart-sku-299nt?fontsize=14&amp;hidenavigation=1&amp;theme=dark"><img src="https://cdn.nlark.com/yuque/0/2020/svg/373912/1591508056037-fc5b8a9d-5c64-4f24-ad74-1d6c8ffeae8b.svg#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;size=0&amp;status=done&amp;style=none&amp;width=201#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;status=done&amp;style=none&amp;width=201#align=left&amp;display=inline&amp;height=42&amp;margin=%5Bobject%20Object%5D&amp;originHeight=42&amp;originWidth=201&amp;status=done&amp;style=none&amp;width=201" alt="codeSandbox.svg" loading="lazy"></a></figure>
+<h2 id="六-最终效果">六、最终效果</h2>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591506721696-3abb7a89-f569-445a-a84d-889e432a06d8.png#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=696&amp;originWidth=401&amp;size=52490&amp;status=done&amp;style=none&amp;width=401#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;originHeight=696&amp;originWidth=401&amp;status=done&amp;style=none&amp;width=401#align=left&amp;display=inline&amp;height=696&amp;margin=%5Bobject%20Object%5D&amp;originHeight=696&amp;originWidth=401&amp;status=done&amp;style=none&amp;width=401" alt="image.png" loading="lazy"><br>
+<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507235477-0333b109-9b1c-4f1c-9f78-96d69552ee1b.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=395&amp;size=62118&amp;status=done&amp;style=none&amp;width=395#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=395&amp;status=done&amp;style=none&amp;width=395#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=395&amp;status=done&amp;style=none&amp;width=395" alt="image.png" loading="lazy"><br>
+<img src="https://cdn.nlark.com/yuque/0/2020/png/373912/1591507849846-bfa08971-6213-4fd5-b865-abf37404756a.png#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=688&amp;originWidth=399&amp;size=37091&amp;status=done&amp;style=none&amp;width=399#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=399&amp;status=done&amp;style=none&amp;width=399#align=left&amp;display=inline&amp;height=688&amp;margin=%5Bobject%20Object%5D&amp;originHeight=688&amp;originWidth=399&amp;status=done&amp;style=none&amp;width=399" alt="image.png" loading="lazy"></p>
 
             </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://luchx.github.io/tag/oIV1a-wls/" class="tag">
+                    Vue
+                  </a>
+                
+                  <a href="https://luchx.github.io/tag/shou-xie-dai-ma/" class="tag">
+                    手写代码
+                  </a>
+                
+              </div>
             
             
               <div class="next-post">
