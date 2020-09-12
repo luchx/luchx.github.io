@@ -6,6 +6,8 @@
 
 ## 2020
 
+* [Vue3 源码解析(2)：从入口开始，了解 setup 函数](https://github.com/luchx/luchx.github.io/issues/20)
+
 * [Vue3 源码解析(1)：先导，了解Vue3 的优化点](https://github.com/luchx/luchx.github.io/issues/19)
 
 * [使用 Vue 实现购物车 SKU 选择](https://github.com/luchx/luchx.github.io/issues/18)
